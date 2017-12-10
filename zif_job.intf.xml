@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_INTF" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOINTERF>
+    <CLSNAME>ZIF_JOB</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>JOB</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <UNICODE>X</UNICODE>
+   </VSEOINTERF>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>SET_SERVER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start on specific application server</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>SET_SERVER_GROUP</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start on specific group of application servers (SM61)</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>SET_SERVER_OLD</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>OBSOLETE - use SET_SERVER</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>START_AFTER_EVENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start job after event is triggered (SM62)</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>START_AFTER_JOB</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start job after another job is finished</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>START_AT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start job at a given date/time</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>START_AT_OPMODE_SWITCH</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start job when new operation mode starts (SM63)</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>START_IMMEDIATELY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start job immediately</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>TY_US_REPEATING_PERIOD</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>TODO to be deleted</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>TY_US_WORKING_DAYS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>TODO to be deleted</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

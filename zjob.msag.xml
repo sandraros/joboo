@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZJOB</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Messages for job OO API</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZJOB</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Job can&apos;t open</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZJOB</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Invalid data</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZJOB</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Job name missing</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

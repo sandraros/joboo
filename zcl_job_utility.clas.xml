@@ -3,17 +3,15 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCX_JOB_STEP</CLSNAME>
+    <CLSNAME>ZCL_JOB_UTILITY</CLSNAME>
     <VERSION>1</VERSION>
     <LANGU>E</LANGU>
-    <CATEGORY>40</CATEGORY>
+    <DESCRIPT>JOB</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
-    <CLSFINAL>X</CLSFINAL>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
-    <MSG_ID>ZJOB</MSG_ID>
    </VSEOCLASS>
   </asx:values>
  </asx:abap>
