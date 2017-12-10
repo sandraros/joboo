@@ -183,6 +183,108 @@ ENDCLASS.
 CLASS ZCL_JOB IMPLEMENTATION.
 
 
+  METHOD add_step_abap.
+    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_ABAP'.
+    DATA: arcparams TYPE arc_params,
+          priparams TYPE pri_params,
+          dummy TYPE string.
+
+
+    process_print_archive_params(
+      EXPORTING
+        archive_parameters = archive_parameters
+        print_parameters = print_parameters
+        report = report
+        user = user
+      IMPORTING
+        arcparams = arcparams
+        priparams = priparams ).
+
+    IF selection_table IS INITIAL AND free_selections IS INITIAL.
+
+      submit(
+EXPORTING
+  arcparams   = arcparams
+  authcknam   = user
+  language    = language
+  priparams   = priparams
+  report      = report
+  variant     = variant
+  this_routine = this_routine
+IMPORTING
+  step_number = step_number ).
+
+    ELSEIF selection_table IS NOT INITIAL AND variant IS INITIAL AND user IS INITIAL.
+
+      SUBMIT (report)
+            VIA JOB me->name NUMBER me->count
+            WITH SELECTION-TABLE selection_table
+            TO SAP-SPOOL
+            WITHOUT SPOOL DYNPRO
+            ARCHIVE PARAMETERS arcparams
+            SPOOL PARAMETERS priparams
+            AND RETURN.
+      IF sy-subrc <> 0.
+        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+      ENDIF.
+
+    ELSEIF variant IS INITIAL.
+
+      SUBMIT (report)
+            VIA JOB me->name NUMBER me->count
+            USER user
+            WITH SELECTION-TABLE selection_table
+            TO SAP-SPOOL
+            WITHOUT SPOOL DYNPRO
+            ARCHIVE PARAMETERS arcparams
+            SPOOL PARAMETERS priparams
+            AND RETURN.
+      IF sy-subrc <> 0.
+        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+      ENDIF.
+
+*'Error with free selections'  "#EC NOTEXT
+*'Error with free selections / static variant'  "#EC NOTEXT
+    ELSEIF user IS INITIAL.
+
+      SUBMIT (report)
+            VIA JOB me->name NUMBER me->count
+            USING SELECTION-SET variant
+            WITH SELECTION-TABLE selection_table
+            TO SAP-SPOOL
+            WITHOUT SPOOL DYNPRO
+            ARCHIVE PARAMETERS arcparams
+            SPOOL PARAMETERS priparams
+            AND RETURN.
+      IF sy-subrc <> 0.
+        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+      ENDIF.
+
+    ELSE.
+
+      SUBMIT (report)
+            VIA JOB me->name NUMBER me->count
+            USER user
+            USING SELECTION-SET variant
+            WITH SELECTION-TABLE selection_table
+            TO SAP-SPOOL
+            WITHOUT SPOOL DYNPRO
+            ARCHIVE PARAMETERS arcparams
+            SPOOL PARAMETERS priparams
+            AND RETURN.
+      IF sy-subrc <> 0.
+        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+      ENDIF.
+
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD check_ret_code.
     DATA dummy TYPE string.
     " based on subroutine XM_MAKE_BAPIRET2_EX in program SAPLSXBP
@@ -387,6 +489,89 @@ CLASS ZCL_JOB IMPLEMENTATION.
     bapiret2-message_v3 = sy-msgv3.
     bapiret2-message_v4 = sy-msgv4.
     MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 INTO bapiret2-message.
+  ENDMETHOD.
+
+
+  METHOD get_state.
+    DATA: job_read_jobhead TYPE tbtcjob,
+    dummy TYPE string.
+
+    IF check_actual_status = abap_false.
+
+      CALL FUNCTION 'BP_JOB_READ'
+        EXPORTING
+          job_read_jobcount           = count
+          job_read_jobname            = name
+          job_read_opcode             = tybtc_read_jobhead_only
+*       JOB_STEP_NUMBER             = JOB_STEP_NUMBER
+       IMPORTING
+         job_read_jobhead            = job_read_jobhead
+*       JOBLOG_ATTRIBUTES           = JOBLOG_ATTRIBUTES
+*       EPP_ATTRIBUTES              = EPP_ATTRIBUTES
+*     TABLES
+*       JOB_READ_STEPLIST           = JOB_READ_STEPLIST
+*       SPOOL_ATTRIBUTES            = SPOOL_ATTRIBUTES
+*     CHANGING
+*       RET                         = RET
+       EXCEPTIONS
+*       INVALID_OPCODE              = 1
+         job_doesnt_exist            = 2
+         job_doesnt_have_steps       = 3
+         OTHERS = 99.
+
+      IF sy-subrc <> 0.
+        CASE sy-subrc.
+          WHEN 2.
+            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_READ' INTO dummy.
+          WHEN OTHERS.
+            " TODO msg_problem_detected
+        ENDCASE.
+
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+
+      ENDIF.
+
+      state = job_read_jobhead-status.
+
+    ELSE.
+
+      CALL FUNCTION 'BP_JOB_CHECKSTATE'
+        EXPORTING
+          dialog                       = 'N'
+          jobcount                     = count
+          jobname                      = name
+          time_limit                   = 60
+        IMPORTING
+          actual_status                = state
+        EXCEPTIONS
+          checking_of_job_has_failed   = 1
+          correcting_job_status_failed = 2
+*         invalid_dialog_type          = 3
+          job_does_not_exist           = 4
+          no_check_privilege_given     = 5
+          ready_switch_too_dangerous   = 0 "normal situation below 60 seconds
+          OTHERS                       = 7.
+
+      IF sy-subrc <> 0.
+        CASE sy-subrc.
+          WHEN 4.
+            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_CHECKSTATE' INTO dummy.
+          WHEN 5.
+            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_privilege_missing INTO dummy.
+          WHEN OTHERS.
+            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected INTO dummy.
+        ENDCASE.
+
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+
+      ENDIF.
+
+    ENDIF.
+
   ENDMETHOD.
 
 
@@ -613,309 +798,6 @@ CLASS ZCL_JOB IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD submit.
-    DATA dummy TYPE string.
-
-    CALL FUNCTION 'JOB_SUBMIT'
-      EXPORTING
-        arcparams                   = arcparams
-        authcknam                   = authcknam
-        commandname                 = commandname
-        operatingsystem             = operatingsystem
-        extpgm_name                 = extpgm_name
-        extpgm_param                = extpgm_param
-        extpgm_set_trace_on         = extpgm_set_trace_on
-        extpgm_stderr_in_joblog     = extpgm_stderr_in_joblog
-        extpgm_stdout_in_joblog     = extpgm_stdout_in_joblog
-        extpgm_system               = extpgm_system
-        extpgm_rfcdest              = extpgm_rfcdest
-        extpgm_wait_for_termination = extpgm_wait_for_termination
-        jobcount                    = me->count
-        jobname                     = me->name
-        language                    = language
-        priparams                   = priparams
-        report                      = report
-        variant                     = variant
-      IMPORTING
-        step_number                 = step_number
-      EXCEPTIONS
-        bad_priparams               = 1
-        bad_xpgflags                = 2
-        invalid_jobdata             = 3
-        jobname_missing             = 4
-        job_notex                   = 5
-        job_submit_failed           = 6
-        lock_failed                 = 7
-        program_missing             = 8
-        prog_abap_and_extpg_set     = 9.
-
-    IF sy-subrc <> 0.
-      CASE sy-subrc.
-        WHEN 1.
-          " should not happen, it should have been intercepted during
-          " method process_print_archive_params.
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine INTO dummy.
-        WHEN 2.
-          " TODO créer un message pour XPGFLAGS
-        WHEN 3.
-          IF 0 = 1. MESSAGE e202(xm). ENDIF. " Invalid new job data
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_new_jobdata INTO dummy.
-        WHEN 4.
-          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_routine INTO dummy.
-        WHEN 5.
-          IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH this_routine INTO dummy.
-        WHEN 6.
-          MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        WHEN 7.
-          IF 0 = 1. MESSAGE e194(xm). ENDIF. " Job could not be locked
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_cant_enq_job INTO dummy.
-        WHEN 8.
-          IF 0 = 1. MESSAGE e050(xm). ENDIF. " Report or program not specified or name incomplete (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_progname_missing WITH this_routine INTO dummy.
-        WHEN 9.
-          " can't happen
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
-        WHEN 10.
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
-      ENDCASE.
-
-      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-
-    ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD add_step_abap.
-    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_ABAP'.
-    DATA: arcparams TYPE arc_params,
-          priparams TYPE pri_params,
-          dummy TYPE string.
-
-
-    process_print_archive_params(
-      EXPORTING
-        archive_parameters = archive_parameters
-        print_parameters = print_parameters
-        report = report
-        user = user
-      IMPORTING
-        arcparams = arcparams
-        priparams = priparams ).
-
-    IF selection_table IS INITIAL AND free_selections IS INITIAL.
-
-      submit(
-EXPORTING
-  arcparams   = arcparams
-  authcknam   = user
-  language    = language
-  priparams   = priparams
-  report      = report
-  variant     = variant
-  this_routine = this_routine
-IMPORTING
-  step_number = step_number ).
-
-    ELSEIF selection_table IS NOT INITIAL AND variant IS INITIAL AND user IS INITIAL.
-
-      SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-    ELSEIF variant IS INITIAL.
-
-      SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
-            USER user
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-*'Error with free selections'  "#EC NOTEXT
-*'Error with free selections / static variant'  "#EC NOTEXT
-    ELSEIF user IS INITIAL.
-
-      SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
-            USING SELECTION-SET variant
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-    ELSE.
-
-      SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
-            USER user
-            USING SELECTION-SET variant
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-    ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD zif_job~ADD_STEP_EXTERNAL_command.
-    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_COMMAND' ##NO_TEXT.
-
-    CALL METHOD submit
-      EXPORTING
-        commandname                 = command
-        extpgm_param                = parameters
-        operatingsystem             = operating_system
-        extpgm_rfcdest              = RFCDEST
-        extpgm_set_trace_on         = set_trace_on
-        extpgm_stderr_in_joblog     = stderr_in_joblog
-        extpgm_stdout_in_joblog     = stdout_in_joblog
-        extpgm_wait_for_termination = wait_for_termination
-        authcknam                   = USER
-        this_routine                = this_routine
-      IMPORTING
-        step_number                 = step_number.
-  ENDMETHOD.
-
-
-  METHOD zif_job~ADD_STEP_EXTERNAL_PROGRAM.
-    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_PROGRAM' ##NO_TEXT.
-
-    CALL METHOD submit
-      EXPORTING
-        extpgm_name                 = PROGRAM
-        extpgm_param                = parameters
-        extpgm_system               = server
-        extpgm_rfcdest              = RFCDEST
-        extpgm_set_trace_on         = set_trace_on
-        extpgm_stderr_in_joblog     = stderr_in_joblog
-        extpgm_stdout_in_joblog     = stdout_in_joblog
-        extpgm_wait_for_termination = wait_for_termination
-        authcknam                   = USER
-        this_routine                = this_routine
-      IMPORTING
-        step_number                 = step_number.
-  ENDMETHOD.
-
-
-  METHOD get_state.
-    DATA: job_read_jobhead TYPE tbtcjob,
-    dummy TYPE string.
-
-    IF check_actual_status = abap_false.
-
-      CALL FUNCTION 'BP_JOB_READ'
-        EXPORTING
-          job_read_jobcount           = count
-          job_read_jobname            = name
-          job_read_opcode             = tybtc_read_jobhead_only
-*       JOB_STEP_NUMBER             = JOB_STEP_NUMBER
-       IMPORTING
-         job_read_jobhead            = job_read_jobhead
-*       JOBLOG_ATTRIBUTES           = JOBLOG_ATTRIBUTES
-*       EPP_ATTRIBUTES              = EPP_ATTRIBUTES
-*     TABLES
-*       JOB_READ_STEPLIST           = JOB_READ_STEPLIST
-*       SPOOL_ATTRIBUTES            = SPOOL_ATTRIBUTES
-*     CHANGING
-*       RET                         = RET
-       EXCEPTIONS
-*       INVALID_OPCODE              = 1
-         job_doesnt_exist            = 2
-         job_doesnt_have_steps       = 3
-         OTHERS = 99.
-
-      IF sy-subrc <> 0.
-        CASE sy-subrc.
-          WHEN 2.
-            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_READ' INTO dummy.
-          WHEN OTHERS.
-            " TODO msg_problem_detected
-        ENDCASE.
-
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-
-      ENDIF.
-
-      state = job_read_jobhead-status.
-
-    ELSE.
-
-      CALL FUNCTION 'BP_JOB_CHECKSTATE'
-        EXPORTING
-          dialog                       = 'N'
-          jobcount                     = count
-          jobname                      = name
-          time_limit                   = 60
-        IMPORTING
-          actual_status                = state
-        EXCEPTIONS
-          checking_of_job_has_failed   = 1
-          correcting_job_status_failed = 2
-*         invalid_dialog_type          = 3
-          job_does_not_exist           = 4
-          no_check_privilege_given     = 5
-          ready_switch_too_dangerous   = 0 "normal situation below 60 seconds
-          OTHERS                       = 7.
-
-      IF sy-subrc <> 0.
-        CASE sy-subrc.
-          WHEN 4.
-            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_CHECKSTATE' INTO dummy.
-          WHEN 5.
-            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_privilege_missing INTO dummy.
-          WHEN OTHERS.
-            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected INTO dummy.
-        ENDCASE.
-
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-
-      ENDIF.
-
-    ENDIF.
-
-  ENDMETHOD.
-
-
   METHOD set_server.
     me->targetserver = server.
     CLEAR : me->targetgroup, me->targetsystem.
@@ -1029,5 +911,123 @@ IMPORTING
     me->calendar_id = calendar_id.
     close( ).
 
+  ENDMETHOD.
+
+
+  METHOD submit.
+    DATA dummy TYPE string.
+
+    CALL FUNCTION 'JOB_SUBMIT'
+      EXPORTING
+        arcparams                   = arcparams
+        authcknam                   = authcknam
+        commandname                 = commandname
+        operatingsystem             = operatingsystem
+        extpgm_name                 = extpgm_name
+        extpgm_param                = extpgm_param
+        extpgm_set_trace_on         = extpgm_set_trace_on
+        extpgm_stderr_in_joblog     = extpgm_stderr_in_joblog
+        extpgm_stdout_in_joblog     = extpgm_stdout_in_joblog
+        extpgm_system               = extpgm_system
+        extpgm_rfcdest              = extpgm_rfcdest
+        extpgm_wait_for_termination = extpgm_wait_for_termination
+        jobcount                    = me->count
+        jobname                     = me->name
+        language                    = language
+        priparams                   = priparams
+        report                      = report
+        variant                     = variant
+      IMPORTING
+        step_number                 = step_number
+      EXCEPTIONS
+        bad_priparams               = 1
+        bad_xpgflags                = 2
+        invalid_jobdata             = 3
+        jobname_missing             = 4
+        job_notex                   = 5
+        job_submit_failed           = 6
+        lock_failed                 = 7
+        program_missing             = 8
+        prog_abap_and_extpg_set     = 9.
+
+    IF sy-subrc <> 0.
+      CASE sy-subrc.
+        WHEN 1.
+          " should not happen, it should have been intercepted during
+          " method process_print_archive_params.
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine INTO dummy.
+        WHEN 2.
+          " TODO créer un message pour XPGFLAGS
+        WHEN 3.
+          IF 0 = 1. MESSAGE e202(xm). ENDIF. " Invalid new job data
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_new_jobdata INTO dummy.
+        WHEN 4.
+          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_routine INTO dummy.
+        WHEN 5.
+          IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH this_routine INTO dummy.
+        WHEN 6.
+          MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
+        WHEN 7.
+          IF 0 = 1. MESSAGE e194(xm). ENDIF. " Job could not be locked
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_cant_enq_job INTO dummy.
+        WHEN 8.
+          IF 0 = 1. MESSAGE e050(xm). ENDIF. " Report or program not specified or name incomplete (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_progname_missing WITH this_routine INTO dummy.
+        WHEN 9.
+          " can't happen
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
+        WHEN 10.
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
+      ENDCASE.
+
+      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~ADD_STEP_EXTERNAL_command.
+    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_COMMAND' ##NO_TEXT.
+
+    CALL METHOD submit
+      EXPORTING
+        commandname                 = command
+        extpgm_param                = parameters
+        operatingsystem             = operating_system
+        extpgm_rfcdest              = RFCDEST
+        extpgm_set_trace_on         = set_trace_on
+        extpgm_stderr_in_joblog     = stderr_in_joblog
+        extpgm_stdout_in_joblog     = stdout_in_joblog
+        extpgm_wait_for_termination = wait_for_termination
+        authcknam                   = USER
+        this_routine                = this_routine
+      IMPORTING
+        step_number                 = step_number.
+  ENDMETHOD.
+
+
+  METHOD zif_job~ADD_STEP_EXTERNAL_PROGRAM.
+    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_PROGRAM' ##NO_TEXT.
+
+    CALL METHOD submit
+      EXPORTING
+        extpgm_name                 = PROGRAM
+        extpgm_param                = parameters
+        extpgm_system               = server
+        extpgm_rfcdest              = RFCDEST
+        extpgm_set_trace_on         = set_trace_on
+        extpgm_stderr_in_joblog     = stderr_in_joblog
+        extpgm_stdout_in_joblog     = stdout_in_joblog
+        extpgm_wait_for_termination = wait_for_termination
+        authcknam                   = USER
+        this_routine                = this_routine
+      IMPORTING
+        step_number                 = step_number.
   ENDMETHOD.
 ENDCLASS.
