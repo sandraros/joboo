@@ -1,193 +1,193 @@
-class ZCL_JOB definition
-  public
-  create public .
+CLASS zcl_job DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_JOB .
+    INTERFACES zif_job .
 
-  aliases AT_OPMODE
-    for ZIF_JOB~AT_OPMODE .
-  aliases AT_OPMODE_PERIODIC
-    for ZIF_JOB~AT_OPMODE_PERIODIC .
-  aliases CALENDAR_ID
-    for ZIF_JOB~CALENDAR_ID .
-  aliases CALENDAR_RULE
-    for ZIF_JOB~CALENDAR_RULE .
-  aliases CLASS
-    for ZIF_JOB~CLASS .
-  aliases COUNT
-    for ZIF_JOB~COUNT .
-  aliases DIRECTION
-    for ZIF_JOB~DIRECTION .
-  aliases DIRECT_START
-    for ZIF_JOB~DIRECT_START .
-  aliases DONT_RELEASE
-    for ZIF_JOB~DONT_RELEASE .
-  aliases EVENT_ID
-    for ZIF_JOB~EVENT_ID .
-  aliases EVENT_PARAM
-    for ZIF_JOB~EVENT_PARAM .
-  aliases EVENT_PERIODIC
-    for ZIF_JOB~EVENT_PERIODIC .
-  aliases JCLASS
-    for ZIF_JOB~JCLASS .
-  aliases LASTSTRTDT
-    for ZIF_JOB~LASTSTRTDT .
-  aliases LASTSTRTTM
-    for ZIF_JOB~LASTSTRTTM .
-  aliases NAME
-    for ZIF_JOB~NAME .
-  aliases PRDDAYS
-    for ZIF_JOB~PRDDAYS .
-  aliases PRDHOURS
-    for ZIF_JOB~PRDHOURS .
-  aliases PRDMINS
-    for ZIF_JOB~PRDMINS .
-  aliases PRDMONTHS
-    for ZIF_JOB~PRDMONTHS .
-  aliases PRDWEEKS
-    for ZIF_JOB~PRDWEEKS .
-  aliases PREDJOB_CHECKSTAT
-    for ZIF_JOB~PREDJOB_CHECKSTAT .
-  aliases PRED_JOBCOUNT
-    for ZIF_JOB~PRED_JOBCOUNT .
-  aliases PRED_JOBNAME
-    for ZIF_JOB~PRED_JOBNAME .
-  aliases RECIPIENT_OBJ
-    for ZIF_JOB~RECIPIENT_OBJ .
-  aliases SDLSTRTDT
-    for ZIF_JOB~SDLSTRTDT .
-  aliases SDLSTRTTM
-    for ZIF_JOB~SDLSTRTTM .
-  aliases STARTDATE_RESTRICTION
-    for ZIF_JOB~STARTDATE_RESTRICTION .
-  aliases START_ON_WORKDAY_NOT_BEFORE
-    for ZIF_JOB~START_ON_WORKDAY_NOT_BEFORE .
-  aliases START_ON_WORKDAY_NR
-    for ZIF_JOB~START_ON_WORKDAY_NR .
-  aliases STATE
-    for ZIF_JOB~STATE .
-  aliases STRTIMMED
-    for ZIF_JOB~STRTIMMED .
-  aliases TARGETGROUP
-    for ZIF_JOB~TARGETGROUP .
-  aliases TARGETSERVER
-    for ZIF_JOB~TARGETSERVER .
-  aliases TARGETSYSTEM
-    for ZIF_JOB~TARGETSYSTEM .
-  aliases WORKDAY_COUNT_DIRECTION
-    for ZIF_JOB~WORKDAY_COUNT_DIRECTION .
-  aliases ADD_STEP_ABAP
-    for ZIF_JOB~ADD_STEP_ABAP .
-  aliases ADD_STEP_EXTERNAL_COMMAND
-    for ZIF_JOB~ADD_STEP_EXTERNAL_COMMAND .
-  aliases ADD_STEP_EXTERNAL_PROGRAM
-    for ZIF_JOB~ADD_STEP_EXTERNAL_PROGRAM .
-  aliases GET_STATE
-    for ZIF_JOB~GET_STATE .
-  aliases SET_SERVER
-    for ZIF_JOB~SET_SERVER .
-  aliases SET_SERVER_GROUP
-    for ZIF_JOB~SET_SERVER_GROUP .
-  aliases SET_SERVER_OLD
-    for ZIF_JOB~SET_SERVER_OLD .
-  aliases START_AFTER_EVENT
-    for ZIF_JOB~START_AFTER_EVENT .
-  aliases START_AFTER_JOB
-    for ZIF_JOB~START_AFTER_JOB .
-  aliases START_AT
-    for ZIF_JOB~START_AT .
-  aliases START_AT_OPMODE_SWITCH
-    for ZIF_JOB~START_AT_OPMODE_SWITCH .
-  aliases START_IMMEDIATELY
-    for ZIF_JOB~START_IMMEDIATELY .
-  aliases START_MONTHLY_NTH_WORKDAY
-    for ZIF_JOB~START_MONTHLY_NTH_WORKDAY .
-  aliases START_PERIODICALLY
-    for ZIF_JOB~START_PERIODICALLY .
-  aliases TY_CALENDAR_RULE
-    for ZIF_JOB~TY_CALENDAR_RULE .
-  aliases TY_US_REPEATING_PERIOD
-    for ZIF_JOB~TY_US_REPEATING_PERIOD .
-  aliases TY_US_WORKING_DAYS
-    for ZIF_JOB~TY_US_WORKING_DAYS .
-  aliases TY_UT_JOB
-    for ZIF_JOB~TY_UT_JOB .
-  aliases TY_WORKDAY_COUNT_DIRECTION
-    for ZIF_JOB~TY_WORKDAY_COUNT_DIRECTION .
+    ALIASES at_opmode
+      FOR zif_job~at_opmode .
+    ALIASES at_opmode_periodic
+      FOR zif_job~at_opmode_periodic .
+    ALIASES calendar_id
+      FOR zif_job~calendar_id .
+    ALIASES calendar_rule
+      FOR zif_job~calendar_rule .
+    ALIASES class
+      FOR zif_job~class .
+    ALIASES count
+      FOR zif_job~count .
+    ALIASES direction
+      FOR zif_job~direction .
+    ALIASES direct_start
+      FOR zif_job~direct_start .
+    ALIASES dont_release
+      FOR zif_job~dont_release .
+    ALIASES event_id
+      FOR zif_job~event_id .
+    ALIASES event_param
+      FOR zif_job~event_param .
+    ALIASES event_periodic
+      FOR zif_job~event_periodic .
+    ALIASES jclass
+      FOR zif_job~jclass .
+    ALIASES laststrtdt
+      FOR zif_job~laststrtdt .
+    ALIASES laststrttm
+      FOR zif_job~laststrttm .
+    ALIASES name
+      FOR zif_job~name .
+    ALIASES prddays
+      FOR zif_job~prddays .
+    ALIASES prdhours
+      FOR zif_job~prdhours .
+    ALIASES prdmins
+      FOR zif_job~prdmins .
+    ALIASES prdmonths
+      FOR zif_job~prdmonths .
+    ALIASES prdweeks
+      FOR zif_job~prdweeks .
+    ALIASES predjob_checkstat
+      FOR zif_job~predjob_checkstat .
+    ALIASES pred_jobcount
+      FOR zif_job~pred_jobcount .
+    ALIASES pred_jobname
+      FOR zif_job~pred_jobname .
+    ALIASES recipient_obj
+      FOR zif_job~recipient_obj .
+    ALIASES sdlstrtdt
+      FOR zif_job~sdlstrtdt .
+    ALIASES sdlstrttm
+      FOR zif_job~sdlstrttm .
+    ALIASES startdate_restriction
+      FOR zif_job~startdate_restriction .
+    ALIASES start_on_workday_not_before
+      FOR zif_job~start_on_workday_not_before .
+    ALIASES start_on_workday_nr
+      FOR zif_job~start_on_workday_nr .
+    ALIASES state
+      FOR zif_job~state .
+    ALIASES strtimmed
+      FOR zif_job~strtimmed .
+    ALIASES targetgroup
+      FOR zif_job~targetgroup .
+    ALIASES targetserver
+      FOR zif_job~targetserver .
+    ALIASES targetsystem
+      FOR zif_job~targetsystem .
+    ALIASES workday_count_direction
+      FOR zif_job~workday_count_direction .
+    ALIASES add_step_abap
+      FOR zif_job~add_step_abap .
+    ALIASES add_step_external_command
+      FOR zif_job~add_step_external_command .
+    ALIASES add_step_external_program
+      FOR zif_job~add_step_external_program .
+    ALIASES get_state
+      FOR zif_job~get_state .
+    ALIASES set_server
+      FOR zif_job~set_server .
+    ALIASES set_server_group
+      FOR zif_job~set_server_group .
+    ALIASES set_server_old
+      FOR zif_job~set_server_old .
+    ALIASES start_after_event
+      FOR zif_job~start_after_event .
+    ALIASES start_after_job
+      FOR zif_job~start_after_job .
+    ALIASES start_at
+      FOR zif_job~start_at .
+    ALIASES start_at_opmode_switch
+      FOR zif_job~start_at_opmode_switch .
+    ALIASES start_immediately
+      FOR zif_job~start_immediately .
+    ALIASES start_monthly_nth_workday
+      FOR zif_job~start_monthly_nth_workday .
+    ALIASES start_periodically
+      FOR zif_job~start_periodically .
+    ALIASES ty_calendar_rule
+      FOR zif_job~ty_calendar_rule .
+    ALIASES ty_us_repeating_period
+      FOR zif_job~ty_us_repeating_period .
+    ALIASES ty_us_working_days
+      FOR zif_job~ty_us_working_days .
+    ALIASES ty_ut_job
+      FOR zif_job~ty_ut_job .
+    ALIASES ty_workday_count_direction
+      FOR zif_job~ty_workday_count_direction .
 
-  constants NO_DATE type D value SPACE. "#EC NOTEXT
-  constants NO_TIME type T value SPACE. "#EC NOTEXT
+    CONSTANTS no_date TYPE d VALUE space.                   "#EC NOTEXT
+    CONSTANTS no_time TYPE t VALUE space.                   "#EC NOTEXT
 
-  methods CONSTRUCTOR
-    importing
-      !NAME type BTCJOB
-      !USER type SYUNAME default SY-UNAME
-      !CLASS type BAPIXMJOB-JOBCLASS default ZIF_JOB=>CLASS-C
-      !CHECK_JOBCLASS type abap_bool DEFAULT abap_false
-    raising
-      ZCX_JOB .
-private section.
+    METHODS constructor
+      IMPORTING
+        !name           TYPE btcjob
+        !user           TYPE syuname DEFAULT sy-uname
+        !class          TYPE bapixmjob-jobclass DEFAULT zif_job=>class-c
+        !check_jobclass TYPE abap_bool DEFAULT abap_false
+      RAISING
+        zcx_job .
+  PRIVATE SECTION.
 
-  methods CONVERT_SY_TO_BAPIRET2
-    returning
-      value(BAPIRET2) type BAPIRET2 .
-  methods CHECK_RET_CODE
-    importing
-      !RET type I
-      !THIS_ROUTINE type CSEQUENCE
-    raising
-      ZCX_JOB .
-  methods CLOSE
-    raising
-      ZCX_JOB .
-  methods SUBMIT
-    importing
-      !ARCPARAMS type ARC_PARAMS optional
-      !AUTHCKNAM type TBTCJOB-AUTHCKNAM
-      !COMMANDNAME type SXPGCOLIST-NAME optional
-      !OPERATINGSYSTEM type SY-OPSYS optional
-      !EXTPGM_NAME type TBTCSTEP-PROGRAM optional
-      !EXTPGM_PARAM type TBTCSTEP-PARAMETER optional
-      !EXTPGM_SET_TRACE_ON type BTCH0000-CHAR1 optional
-      !EXTPGM_STDERR_IN_JOBLOG type BTCH0000-CHAR1 default 'X'
-      !EXTPGM_STDOUT_IN_JOBLOG type BTCH0000-CHAR1 default 'X'
-      !EXTPGM_SYSTEM type TBTCSTEP-XPGTGTSYS optional
-      !EXTPGM_RFCDEST type TBTCSTEP-XPGRFCDEST optional
-      !EXTPGM_WAIT_FOR_TERMINATION type BTCH0000-CHAR1 optional
-      !LANGUAGE type SY-LANGU default SY-LANGU
-      !PRIPARAMS type PRI_PARAMS optional
-      !REPORT type SY-REPID optional
-      !VARIANT type RALDB-VARIANT optional
-      !THIS_ROUTINE type SYMSGV
-    exporting
-      !STEP_NUMBER type TBTCJOB-STEPCOUNT
-    raising
-      ZCX_JOB .
-  methods PROCESS_PRINT_ARCHIVE_PARAMS
-    importing
-      value(PRINT_PARAMETERS) type BAPIPRIPAR
-      value(ARCHIVE_PARAMETERS) type BAPIARCPAR
-      !REPORT type PROGRAM
-      !USER type SYUNAME
-    exporting
-      !ARCPARAMS type ARC_PARAMS
-      !PRIPARAMS type PRI_PARAMS
-    raising
-      ZCX_JOB .
+    METHODS convert_sy_to_bapiret2
+      RETURNING
+        VALUE(bapiret2) TYPE bapiret2 .
+    METHODS check_ret_code
+      IMPORTING
+        !ret          TYPE i
+        !this_routine TYPE csequence
+      RAISING
+        zcx_job .
+    METHODS close
+      RAISING
+        zcx_job .
+    METHODS submit
+      IMPORTING
+        !arcparams                   TYPE arc_params OPTIONAL
+        !authcknam                   TYPE tbtcjob-authcknam
+        !commandname                 TYPE sxpgcolist-name OPTIONAL
+        !operatingsystem             TYPE sy-opsys OPTIONAL
+        !extpgm_name                 TYPE tbtcstep-program OPTIONAL
+        !extpgm_param                TYPE tbtcstep-parameter OPTIONAL
+        !extpgm_set_trace_on         TYPE btch0000-char1 OPTIONAL
+        !extpgm_stderr_in_joblog     TYPE btch0000-char1 DEFAULT 'X'
+        !extpgm_stdout_in_joblog     TYPE btch0000-char1 DEFAULT 'X'
+        !extpgm_system               TYPE tbtcstep-xpgtgtsys OPTIONAL
+        !extpgm_rfcdest              TYPE tbtcstep-xpgrfcdest OPTIONAL
+        !extpgm_wait_for_termination TYPE btch0000-char1 OPTIONAL
+        !language                    TYPE sy-langu DEFAULT sy-langu
+        !priparams                   TYPE pri_params OPTIONAL
+        !report                      TYPE sy-repid OPTIONAL
+        !variant                     TYPE raldb-variant OPTIONAL
+        !this_routine                TYPE symsgv
+      EXPORTING
+        !step_number                 TYPE tbtcjob-stepcount
+      RAISING
+        zcx_job .
+    METHODS process_print_archive_params
+      IMPORTING
+        VALUE(print_parameters)   TYPE bapipripar
+        VALUE(archive_parameters) TYPE bapiarcpar
+        !report                   TYPE program
+        !user                     TYPE syuname
+      EXPORTING
+        !arcparams                TYPE arc_params
+        !priparams                TYPE pri_params
+      RAISING
+        zcx_job .
 ENDCLASS.
 
 
 
-CLASS ZCL_JOB IMPLEMENTATION.
+CLASS zcl_job IMPLEMENTATION.
 
 
   METHOD add_step_abap.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_ABAP'.
     DATA: arcparams TYPE arc_params,
           priparams TYPE pri_params,
-          dummy TYPE string.
+          dummy     TYPE string.
 
 
     process_print_archive_params(
@@ -203,16 +203,16 @@ CLASS ZCL_JOB IMPLEMENTATION.
     IF selection_table IS INITIAL AND free_selections IS INITIAL.
 
       submit(
-EXPORTING
-  arcparams   = arcparams
-  authcknam   = user
-  language    = language
-  priparams   = priparams
-  report      = report
-  variant     = variant
-  this_routine = this_routine
-IMPORTING
-  step_number = step_number ).
+        EXPORTING
+          arcparams   = arcparams
+          authcknam   = user
+          language    = language
+          priparams   = priparams
+          report      = report
+          variant     = variant
+          this_routine = this_routine
+        IMPORTING
+          step_number = step_number ).
 
     ELSEIF selection_table IS NOT INITIAL AND variant IS INITIAL AND user IS INITIAL.
 
@@ -494,30 +494,30 @@ IMPORTING
 
   METHOD get_state.
     DATA: job_read_jobhead TYPE tbtcjob,
-    dummy TYPE string.
+          dummy            TYPE string.
 
     IF check_actual_status = abap_false.
 
       CALL FUNCTION 'BP_JOB_READ'
         EXPORTING
-          job_read_jobcount           = count
-          job_read_jobname            = name
-          job_read_opcode             = tybtc_read_jobhead_only
-*       JOB_STEP_NUMBER             = JOB_STEP_NUMBER
-       IMPORTING
-         job_read_jobhead            = job_read_jobhead
-*       JOBLOG_ATTRIBUTES           = JOBLOG_ATTRIBUTES
-*       EPP_ATTRIBUTES              = EPP_ATTRIBUTES
+          job_read_jobcount     = count
+          job_read_jobname      = name
+          job_read_opcode       = tybtc_read_jobhead_only
+*         JOB_STEP_NUMBER       = JOB_STEP_NUMBER
+        IMPORTING
+          job_read_jobhead      = job_read_jobhead
+*         JOBLOG_ATTRIBUTES     = JOBLOG_ATTRIBUTES
+*         EPP_ATTRIBUTES        = EPP_ATTRIBUTES
 *     TABLES
-*       JOB_READ_STEPLIST           = JOB_READ_STEPLIST
-*       SPOOL_ATTRIBUTES            = SPOOL_ATTRIBUTES
+*         JOB_READ_STEPLIST     = JOB_READ_STEPLIST
+*         SPOOL_ATTRIBUTES      = SPOOL_ATTRIBUTES
 *     CHANGING
-*       RET                         = RET
-       EXCEPTIONS
-*       INVALID_OPCODE              = 1
-         job_doesnt_exist            = 2
-         job_doesnt_have_steps       = 3
-         OTHERS = 99.
+*         RET                   = RET
+        EXCEPTIONS
+*         INVALID_OPCODE        = 1
+          job_doesnt_exist      = 2
+          job_doesnt_have_steps = 3
+          OTHERS                = 99.
 
       IF sy-subrc <> 0.
         CASE sy-subrc.
@@ -576,10 +576,10 @@ IMPORTING
 
 
   METHOD process_print_archive_params.
-    CONSTANTS : this_routine        TYPE symsgv VALUE 'ADD_STEP_ABAP',
-                c_char_unknown      TYPE c VALUE '_', "Unbekannt C
-                c_int_unknown       TYPE i VALUE -1,  "Unbekannt I
-                c_num1_unknown      TYPE n VALUE '0',"Unbekannt N(1)
+    CONSTANTS : this_routine         TYPE symsgv VALUE 'ADD_STEP_ABAP',
+                c_char_unknown       TYPE c VALUE '_', "Unbekannt C
+                c_int_unknown        TYPE i VALUE -1,  "Unbekannt I
+                c_num1_unknown       TYPE n VALUE '0', "Unbekannt N(1)
                 c_char_space_request TYPE c VALUE '$'. "will be SPACE
     DATA dummy TYPE string.
 
@@ -865,7 +865,7 @@ IMPORTING
 
 
   METHOD start_monthly_nth_workday.
-    DATA: tstmp   TYPE timestamp,
+    DATA: tstmp      TYPE timestamp,
           tstmp_numc TYPE n LENGTH 14.
 
     me->sdlstrtdt = first_date.
@@ -891,7 +891,7 @@ IMPORTING
 
 
   METHOD start_periodically.
-    DATA: tstmp   TYPE timestamp,
+    DATA: tstmp      TYPE timestamp,
           tstmp_numc TYPE n LENGTH 14.
 
     me->sdlstrtdt = first_date.
@@ -992,7 +992,7 @@ IMPORTING
   ENDMETHOD.
 
 
-  METHOD zif_job~ADD_STEP_EXTERNAL_command.
+  METHOD zif_job~add_step_external_command.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_COMMAND' ##NO_TEXT.
 
     CALL METHOD submit
@@ -1000,32 +1000,32 @@ IMPORTING
         commandname                 = command
         extpgm_param                = parameters
         operatingsystem             = operating_system
-        extpgm_rfcdest              = RFCDEST
+        extpgm_rfcdest              = rfcdest
         extpgm_set_trace_on         = set_trace_on
         extpgm_stderr_in_joblog     = stderr_in_joblog
         extpgm_stdout_in_joblog     = stdout_in_joblog
         extpgm_wait_for_termination = wait_for_termination
-        authcknam                   = USER
+        authcknam                   = user
         this_routine                = this_routine
       IMPORTING
         step_number                 = step_number.
   ENDMETHOD.
 
 
-  METHOD zif_job~ADD_STEP_EXTERNAL_PROGRAM.
+  METHOD zif_job~add_step_external_program.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_PROGRAM' ##NO_TEXT.
 
     CALL METHOD submit
       EXPORTING
-        extpgm_name                 = PROGRAM
+        extpgm_name                 = program
         extpgm_param                = parameters
         extpgm_system               = server
-        extpgm_rfcdest              = RFCDEST
+        extpgm_rfcdest              = rfcdest
         extpgm_set_trace_on         = set_trace_on
         extpgm_stderr_in_joblog     = stderr_in_joblog
         extpgm_stdout_in_joblog     = stdout_in_joblog
         extpgm_wait_for_termination = wait_for_termination
-        authcknam                   = USER
+        authcknam                   = user
         this_routine                = this_routine
       IMPORTING
         step_number                 = step_number.
