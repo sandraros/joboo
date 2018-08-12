@@ -1,124 +1,47 @@
+********************************************************************************
+*  MIT License
+*
+*  Copyright (c) 2018 sandraros
+*
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
+*  of this software and associated documentation files (the "Software"), to deal
+*  in the Software without restriction, including without limitation the rights
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*  copies of the Software, and to permit persons to whom the Software is
+*  furnished to do so, subject to the following conditions:
+*
+*  The above copyright notice and this permission notice shall be included in all
+*  copies or substantial portions of the Software.
+*
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*  SOFTWARE.
+********************************************************************************
 CLASS zcl_job DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PRIVATE .
 
   PUBLIC SECTION.
 
     INTERFACES zif_job .
 
-    ALIASES at_opmode
-      FOR zif_job~at_opmode .
-    ALIASES at_opmode_periodic
-      FOR zif_job~at_opmode_periodic .
-    ALIASES calendar_id
-      FOR zif_job~calendar_id .
-    ALIASES calendar_rule
-      FOR zif_job~calendar_rule .
-    ALIASES class
-      FOR zif_job~class .
-    ALIASES count
-      FOR zif_job~count .
-    ALIASES direction
-      FOR zif_job~direction .
-    ALIASES direct_start
-      FOR zif_job~direct_start .
-    ALIASES dont_release
-      FOR zif_job~dont_release .
-    ALIASES event_id
-      FOR zif_job~event_id .
-    ALIASES event_param
-      FOR zif_job~event_param .
-    ALIASES event_periodic
-      FOR zif_job~event_periodic .
-    ALIASES jclass
-      FOR zif_job~jclass .
-    ALIASES laststrtdt
-      FOR zif_job~laststrtdt .
-    ALIASES laststrttm
-      FOR zif_job~laststrttm .
-    ALIASES name
-      FOR zif_job~name .
-    ALIASES prddays
-      FOR zif_job~prddays .
-    ALIASES prdhours
-      FOR zif_job~prdhours .
-    ALIASES prdmins
-      FOR zif_job~prdmins .
-    ALIASES prdmonths
-      FOR zif_job~prdmonths .
-    ALIASES prdweeks
-      FOR zif_job~prdweeks .
-    ALIASES predjob_checkstat
-      FOR zif_job~predjob_checkstat .
-    ALIASES pred_jobcount
-      FOR zif_job~pred_jobcount .
-    ALIASES pred_jobname
-      FOR zif_job~pred_jobname .
-    ALIASES recipient_obj
-      FOR zif_job~recipient_obj .
-    ALIASES sdlstrtdt
-      FOR zif_job~sdlstrtdt .
-    ALIASES sdlstrttm
-      FOR zif_job~sdlstrttm .
-    ALIASES startdate_restriction
-      FOR zif_job~startdate_restriction .
-    ALIASES start_on_workday_not_before
-      FOR zif_job~start_on_workday_not_before .
-    ALIASES start_on_workday_nr
-      FOR zif_job~start_on_workday_nr .
-    ALIASES state
-      FOR zif_job~state .
-    ALIASES strtimmed
-      FOR zif_job~strtimmed .
-    ALIASES targetgroup
-      FOR zif_job~targetgroup .
-    ALIASES targetserver
-      FOR zif_job~targetserver .
-    ALIASES targetsystem
-      FOR zif_job~targetsystem .
-    ALIASES workday_count_direction
-      FOR zif_job~workday_count_direction .
-    ALIASES add_step_abap
-      FOR zif_job~add_step_abap .
-    ALIASES add_step_external_command
-      FOR zif_job~add_step_external_command .
-    ALIASES add_step_external_program
-      FOR zif_job~add_step_external_program .
-    ALIASES get_state
-      FOR zif_job~get_state .
-    ALIASES set_server
-      FOR zif_job~set_server .
-    ALIASES set_server_group
-      FOR zif_job~set_server_group .
-    ALIASES set_server_old
-      FOR zif_job~set_server_old .
-    ALIASES start_after_event
-      FOR zif_job~start_after_event .
-    ALIASES start_after_job
-      FOR zif_job~start_after_job .
-    ALIASES start_at
-      FOR zif_job~start_at .
-    ALIASES start_at_opmode_switch
-      FOR zif_job~start_at_opmode_switch .
-    ALIASES start_immediately
-      FOR zif_job~start_immediately .
-    ALIASES start_monthly_nth_workday
-      FOR zif_job~start_monthly_nth_workday .
-    ALIASES start_periodically
-      FOR zif_job~start_periodically .
-    ALIASES ty_calendar_rule
-      FOR zif_job~ty_calendar_rule .
-    ALIASES ty_us_repeating_period
-      FOR zif_job~ty_us_repeating_period .
-    ALIASES ty_us_working_days
-      FOR zif_job~ty_us_working_days .
-    ALIASES ty_ut_job
-      FOR zif_job~ty_ut_job .
-    ALIASES ty_workday_count_direction
-      FOR zif_job~ty_workday_count_direction .
+    CONSTANTS no_date TYPE d VALUE space ##NO_TEXT.
+    CONSTANTS no_time TYPE t VALUE space ##NO_TEXT.
 
-    CONSTANTS no_date TYPE d VALUE space.                   "#EC NOTEXT
-    CONSTANTS no_time TYPE t VALUE space.                   "#EC NOTEXT
+    CLASS-METHODS new " used instead of constructor to cast automatically into ZIF_JOB
+      IMPORTING
+        !name           TYPE btcjob
+        !user           TYPE syuname DEFAULT sy-uname
+        !class          TYPE bapixmjob-jobclass DEFAULT zif_job=>class-c
+        !check_jobclass TYPE abap_bool DEFAULT abap_false
+      RETURNING
+        VALUE(job)      TYPE REF TO zif_job
+      RAISING
+        zcx_job .
 
     METHODS constructor
       IMPORTING
@@ -128,12 +51,13 @@ CLASS zcl_job DEFINITION
         !check_jobclass TYPE abap_bool DEFAULT abap_false
       RAISING
         zcx_job .
+
   PRIVATE SECTION.
 
-    METHODS convert_sy_to_bapiret2
+    CLASS-METHODS convert_sy_to_bapiret2
       RETURNING
         VALUE(bapiret2) TYPE bapiret2 .
-    METHODS check_ret_code
+    CLASS-METHODS check_ret_code
       IMPORTING
         !ret          TYPE i
         !this_routine TYPE csequence
@@ -176,6 +100,78 @@ CLASS zcl_job DEFINITION
         !priparams                TYPE pri_params
       RAISING
         zcx_job .
+
+  aliases AT_OPMODE
+    for ZIF_JOB~AT_OPMODE .
+  aliases AT_OPMODE_PERIODIC
+    for ZIF_JOB~AT_OPMODE_PERIODIC .
+  aliases CALENDAR_ID
+    for ZIF_JOB~CALENDAR_ID .
+  aliases CALENDAR_RULE
+    for ZIF_JOB~CALENDAR_RULE .
+  aliases CLASS
+    for ZIF_JOB~CLASS .
+  aliases COUNT
+    for ZIF_JOB~COUNT .
+  aliases DIRECT_START
+    for ZIF_JOB~DIRECT_START .
+  aliases DONT_RELEASE
+    for ZIF_JOB~DONT_RELEASE .
+  aliases EVENT_ID
+    for ZIF_JOB~EVENT_ID .
+  aliases EVENT_PARAM
+    for ZIF_JOB~EVENT_PARAM .
+  aliases EVENT_PERIODIC
+    for ZIF_JOB~EVENT_PERIODIC .
+  aliases JCLASS
+    for ZIF_JOB~JCLASS .
+  aliases LASTSTRTDT
+    for ZIF_JOB~LASTSTRTDT .
+  aliases LASTSTRTTM
+    for ZIF_JOB~LASTSTRTTM .
+  aliases NAME
+    for ZIF_JOB~NAME .
+  aliases PRDDAYS
+    for ZIF_JOB~PRDDAYS .
+  aliases PRDHOURS
+    for ZIF_JOB~PRDHOURS .
+  aliases PRDMINS
+    for ZIF_JOB~PRDMINS .
+  aliases PRDMONTHS
+    for ZIF_JOB~PRDMONTHS .
+  aliases PRDWEEKS
+    for ZIF_JOB~PRDWEEKS .
+  aliases PREDJOB_CHECKSTAT
+    for ZIF_JOB~PREDJOB_CHECKSTAT .
+  aliases PRED_JOBCOUNT
+    for ZIF_JOB~PRED_JOBCOUNT .
+  aliases PRED_JOBNAME
+    for ZIF_JOB~PRED_JOBNAME .
+  aliases RECIPIENT_OBJ
+    for ZIF_JOB~RECIPIENT_OBJ .
+  aliases SDLSTRTDT
+    for ZIF_JOB~SDLSTRTDT .
+  aliases SDLSTRTTM
+    for ZIF_JOB~SDLSTRTTM .
+  aliases STARTDATE_RESTRICTION
+    for ZIF_JOB~STARTDATE_RESTRICTION .
+  aliases START_ON_WORKDAY_NOT_BEFORE
+    for ZIF_JOB~START_ON_WORKDAY_NOT_BEFORE .
+  aliases START_ON_WORKDAY_NR
+    for ZIF_JOB~START_ON_WORKDAY_NR .
+  aliases STATE
+    for ZIF_JOB~STATE .
+  aliases STRTIMMED
+    for ZIF_JOB~STRTIMMED .
+  aliases TARGETGROUP
+    for ZIF_JOB~TARGETGROUP .
+  aliases TARGETSERVER
+    for ZIF_JOB~TARGETSERVER .
+  aliases TARGETSYSTEM
+    for ZIF_JOB~TARGETSYSTEM .
+  aliases WORKDAY_COUNT_DIRECTION
+    for ZIF_JOB~WORKDAY_COUNT_DIRECTION .
+
 ENDCLASS.
 
 
@@ -183,11 +179,12 @@ ENDCLASS.
 CLASS zcl_job IMPLEMENTATION.
 
 
-  METHOD add_step_abap.
+  METHOD zif_job~add_step_abap.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_ABAP'.
     DATA: arcparams TYPE arc_params,
           priparams TYPE pri_params,
-          dummy     TYPE string.
+          dummy     TYPE string,
+          step_number TYPE i.
 
 
     process_print_archive_params(
@@ -217,7 +214,7 @@ CLASS zcl_job IMPLEMENTATION.
     ELSEIF selection_table IS NOT INITIAL AND variant IS INITIAL AND user IS INITIAL.
 
       SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
+            VIA JOB me->zif_job~name NUMBER me->zif_job~count
             WITH SELECTION-TABLE selection_table
             TO SAP-SPOOL
             WITHOUT SPOOL DYNPRO
@@ -232,7 +229,7 @@ CLASS zcl_job IMPLEMENTATION.
     ELSEIF variant IS INITIAL.
 
       SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
+            VIA JOB me->zif_job~name NUMBER me->zif_job~count
             USER user
             WITH SELECTION-TABLE selection_table
             TO SAP-SPOOL
@@ -250,7 +247,7 @@ CLASS zcl_job IMPLEMENTATION.
     ELSEIF user IS INITIAL.
 
       SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
+            VIA JOB me->zif_job~name NUMBER me->zif_job~count
             USING SELECTION-SET variant
             WITH SELECTION-TABLE selection_table
             TO SAP-SPOOL
@@ -266,7 +263,7 @@ CLASS zcl_job IMPLEMENTATION.
     ELSE.
 
       SUBMIT (report)
-            VIA JOB me->name NUMBER me->count
+            VIA JOB me->zif_job~name NUMBER me->zif_job~count
             USER user
             USING SELECTION-SET variant
             WITH SELECTION-TABLE selection_table
@@ -324,7 +321,8 @@ CLASS zcl_job IMPLEMENTATION.
     CONSTANTS: this_routine TYPE symsgv VALUE 'JOB_CLOSE'.
     DATA: job_was_released TYPE btch0000-char1,
           ret              TYPE i,
-          dummy            TYPE string.
+          dummy            TYPE string,
+          dont_release TYPE btch0000-char1.
 
     CALL FUNCTION 'JOB_CLOSE'
       EXPORTING
@@ -428,26 +426,32 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD constructor.
+  METHOD new.
     CONSTANTS: this_routine TYPE symsgv VALUE 'JOB_OPEN'.
     DATA: info  TYPE i,
           ret   TYPE i,
           dummy TYPE string.
 
-    super->constructor( ).
+    job = new zcl_job(
+        name           = name
+        user           = user
+        class          = class
+        check_jobclass = check_jobclass
+    ).
 
-    me->name = to_upper( name ).
-    me->jclass = class.
-    me->sdlstrtdt = no_date. " date with spaces instead of zeroes, as defined in JOB_CLOSE
-    me->sdlstrttm = no_time. " time with spaces instead of zeroes, as defined in JOB_CLOSE
+    DATA(job2) = CAST zcl_job( job ).
+    job2->name = to_upper( name ).
+    job2->jclass = class.
+    job2->sdlstrtdt = no_date. " date with spaces instead of zeroes, as defined in JOB_CLOSE
+    job2->sdlstrttm = no_time. " time with spaces instead of zeroes, as defined in JOB_CLOSE
 
     CALL FUNCTION 'JOB_OPEN'
       EXPORTING
-        jobname          = name
-        jobclass         = class    " Job classification
+        jobname          = job2->name
+        jobclass         = job2->class    " Job classification
         check_jobclass   = check_jobclass
       IMPORTING
-        jobcount         = me->count
+        jobcount         = job2->count
         info             = info    " ID Number of Background Job
       CHANGING
         ret              = ret    " Special Additional Error Code
@@ -492,7 +496,7 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_state.
+  METHOD zif_job~get_state.
     DATA: job_read_jobhead TYPE tbtcjob,
           dummy            TYPE string.
 
@@ -798,25 +802,25 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD set_server.
+  METHOD zif_job~set_server.
     me->targetserver = server.
     CLEAR : me->targetgroup, me->targetsystem.
   ENDMETHOD.
 
 
-  METHOD set_server_group.
+  METHOD zif_job~set_server_group.
     me->targetgroup = server_group.
     CLEAR : me->targetserver, me->targetsystem.
   ENDMETHOD.
 
 
-  METHOD set_server_old.
+  METHOD zif_job~set_server_old.
     me->targetsystem = server_old.
     CLEAR : me->targetserver, me->targetgroup.
   ENDMETHOD.
 
 
-  METHOD start_after_event.
+  METHOD zif_job~start_after_event.
 
     me->event_id = event_id.
     me->event_param = event_param.
@@ -826,7 +830,7 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD start_after_job.
+  METHOD zif_job~start_after_job.
 
     pred_jobcount = job->count.
     pred_jobname = job->name.
@@ -835,7 +839,7 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD start_at.
+  METHOD zif_job~start_at.
 
     me->sdlstrtdt = date.
     me->sdlstrttm = time.
@@ -844,14 +848,14 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD start_at_opmode_switch.
+  METHOD zif_job~start_at_opmode_switch.
     me->at_opmode = opmode.
     me->at_opmode_periodic = opmode_periodic.
     close( ).
   ENDMETHOD.
 
 
-  METHOD start_immediately.
+  METHOD zif_job~start_immediately.
 
     me->strtimmed = abap_true.
     IF error_if_cant_start_immed = abap_true.
@@ -864,7 +868,7 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD start_monthly_nth_workday.
+  METHOD zif_job~start_monthly_nth_workday.
     DATA: tstmp      TYPE timestamp,
           tstmp_numc TYPE n LENGTH 14.
 
@@ -890,7 +894,7 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD start_periodically.
+  METHOD zif_job~start_periodically.
     DATA: tstmp      TYPE timestamp,
           tstmp_numc TYPE n LENGTH 14.
 
@@ -994,6 +998,7 @@ CLASS zcl_job IMPLEMENTATION.
 
   METHOD zif_job~add_step_external_command.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_COMMAND' ##NO_TEXT.
+                                                                           DATA: step_number TYPE i.
 
     CALL METHOD submit
       EXPORTING
@@ -1014,6 +1019,7 @@ CLASS zcl_job IMPLEMENTATION.
 
   METHOD zif_job~add_step_external_program.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_PROGRAM' ##NO_TEXT.
+                                                                           DATA: step_number TYPE i.
 
     CALL METHOD submit
       EXPORTING
@@ -1030,4 +1036,21 @@ CLASS zcl_job IMPLEMENTATION.
       IMPORTING
         step_number                 = step_number.
   ENDMETHOD.
+
+  METHOD zif_job~set_successor_job.
+    IF successor IS NOT BOUND.
+      zcx_job=>raise( bapiret2 = value #( ) ).
+    ENDIF.
+    successor->start_after_job(
+      EXPORTING
+        predecessor       = me
+        predjob_checkstat = checkstat
+      RECEIVING
+        job               = job
+    ).
+  ENDMETHOD.
+
+  METHOD constructor.
+  ENDMETHOD.
+
 ENDCLASS.

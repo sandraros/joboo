@@ -1,3 +1,26 @@
+********************************************************************************
+*  MIT License
+*
+*  Copyright (c) 2018 sandraros
+*
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
+*  of this software and associated documentation files (the "Software"), to deal
+*  in the Software without restriction, including without limitation the rights
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*  copies of the Software, and to permit persons to whom the Software is
+*  furnished to do so, subject to the following conditions:
+*
+*  The above copyright notice and this permission notice shall be included in all
+*  copies or substantial portions of the Software.
+*
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*  SOFTWARE.
+********************************************************************************
 REPORT.
 
 
@@ -33,38 +56,19 @@ CLASS lcl_app IMPLEMENTATION.
     ENDTRY.
   ENDMETHOD.
   METHOD simple_immediately.
-    CREATE OBJECT job
-      EXPORTING
-        name = 'one step'.
-    job->add_step_abap( report = sy-repid ).
-    job->start_immediately( ).
+    zcl_job=>new( name = 'one step' )->add_step_abap( report = sy-repid )->start_immediately( ).
   ENDMETHOD.
   METHOD two_steps_immediately.
-    CREATE OBJECT job
-      EXPORTING
-        name = 'two steps'.
-    job->add_step_abap( report = sy-repid ).
-    job->add_step_abap( report = sy-repid ).
-    job->start_immediately( ).
+    zcl_job=>new( name = 'two steps' )->add_step_abap( report = sy-repid )->add_step_abap( report = sy-repid )->start_immediately( ).
   ENDMETHOD.
   METHOD external_command_immediately.
-    CREATE OBJECT job
-      EXPORTING
-        name = 'SM49'.
-    job->add_step_external_command( command = 'ZDIR' ).
-    job->start_immediately( ).
+    zcl_job=>new( name = 'SM49' )->add_step_external_command( command = 'ZDIR' )->start_immediately( ).
   ENDMETHOD.
   METHOD external_program_immediately.
-    CREATE OBJECT job
-      EXPORTING
-        name = 'OS command without SM49'.
-    job->add_step_external_program( program = 'cmd /c dir' wait_for_termination = abap_true ).
-    job->start_immediately( ).
+    zcl_job=>new( name = 'OS command without SM49' )->add_step_external_program( program = 'cmd /c dir' wait_for_termination = abap_true )->start_immediately( ).
   ENDMETHOD.
   METHOD start_in_10_seconds.
-    CREATE OBJECT job
-      EXPORTING
-        name = 'OS command without SM49'.
+    zcl_job=>new( name = 'OS command without SM49' ).
   ENDMETHOD.
   METHOD start_daily_at_10_am.
   ENDMETHOD.

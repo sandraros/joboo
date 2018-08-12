@@ -38,12 +38,6 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIF_JOB</CLSNAME>
-     <CMPNAME>START_AFTER_JOB</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Start job after another job is finished</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIF_JOB</CLSNAME>
      <CMPNAME>START_AT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Start job at a given date/time</DESCRIPT>
