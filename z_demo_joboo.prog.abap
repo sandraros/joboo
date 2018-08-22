@@ -22,9 +22,9 @@
 *  SOFTWARE.
 ********************************************************************************
 REPORT.
-*joboo
-* joboo2
 
+
+* joboo
 CLASS lcl_app DEFINITION.
   PUBLIC SECTION.
     CLASS-METHODS main.
