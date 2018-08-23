@@ -40,7 +40,7 @@ CLASS lcl_app DEFINITION.
     CLASS-DATA job TYPE REF TO zcl_job.
     CLASS-DATA lx_job TYPE REF TO zcx_job.
 ENDCLASS.
-
+*joboo
 CLASS lcl_app IMPLEMENTATION.
   METHOD main.
     TRY.
