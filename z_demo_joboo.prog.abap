@@ -24,7 +24,6 @@
 REPORT.
 
 
-* joboo2 bis
 CLASS lcl_app DEFINITION.
   PUBLIC SECTION.
     CLASS-METHODS main.
@@ -40,9 +39,9 @@ CLASS lcl_app DEFINITION.
     CLASS-DATA job TYPE REF TO zcl_job.
     CLASS-DATA lx_job TYPE REF TO zcx_job.
 ENDCLASS.
-* joboo2
+
 CLASS lcl_app IMPLEMENTATION.
-* joboo2
+
   METHOD main.
     TRY.
 *        simple_immediately( ).
