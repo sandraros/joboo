@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">JOB</p>
 INTERFACE zif_job
   PUBLIC .
 
@@ -24,10 +25,14 @@ INTERFACE zif_job
 
   CONSTANTS:
     BEGIN OF class,
+      "! A = highest priority
       a TYPE btcjobclas VALUE tybtc_jobclass_a,
+      "! B = medium priority (default)
       b TYPE btcjobclas VALUE tybtc_jobclass_b,
+      "! C = low priority
       c TYPE btcjobclas VALUE tybtc_jobclass_c,
     END OF class .
+
   CONSTANTS:
     BEGIN OF state,
       running       TYPE btcstatus VALUE tybtc_running,
@@ -52,60 +57,80 @@ INTERFACE zif_job
       process_after_holiday   TYPE ty_calendar_rule VALUE tybtc_process_after_holiday,
       process_always          TYPE ty_calendar_rule VALUE tybtc_process_always,
     END OF calendar_rule .
-  DATA name TYPE btcjob READ-ONLY .
-  DATA count TYPE btcjobcnt READ-ONLY .
-  DATA jclass TYPE btcjobclas READ-ONLY .
-  DATA at_opmode TYPE spfba-baname READ-ONLY .
-  DATA at_opmode_periodic TYPE btch0000-char1 READ-ONLY .
-  DATA event_id TYPE tbtcjob-eventid READ-ONLY .
-  DATA event_param TYPE tbtcjob-eventparm READ-ONLY .
-  DATA event_periodic TYPE btch0000-char1 READ-ONLY .
-  DATA sdlstrtdt TYPE tbtcjob-sdlstrtdt READ-ONLY .
-  DATA sdlstrttm TYPE tbtcjob-sdlstrttm READ-ONLY .
-  DATA laststrtdt TYPE tbtcjob-laststrtdt READ-ONLY .
-  DATA laststrttm TYPE tbtcjob-laststrttm READ-ONLY .
-  DATA prddays TYPE tbtcjob-prddays READ-ONLY .
-  DATA prdhours TYPE tbtcjob-prdhours READ-ONLY .
-  DATA prdmins TYPE tbtcjob-prdmins READ-ONLY .
-  DATA prdmonths TYPE tbtcjob-prdmonths READ-ONLY .
-  DATA prdweeks TYPE tbtcjob-prdweeks READ-ONLY .
-  DATA calendar_id TYPE tbtcjob-calendarid READ-ONLY .
-  DATA startdate_restriction TYPE tbtcjob-prdbehav READ-ONLY .
-  DATA start_on_workday_not_before TYPE tbtcstrt-notbefore READ-ONLY .
-  DATA start_on_workday_nr TYPE tbtcstrt-wdayno READ-ONLY .
-  DATA workday_count_direction TYPE tbtcstrt-wdaycdir READ-ONLY .
-  DATA predjob_checkstat TYPE tbtcstrt-checkstat READ-ONLY .
-  DATA pred_jobcount TYPE tbtcjob-jobcount READ-ONLY .
-  DATA pred_jobname TYPE tbtcjob-jobname READ-ONLY .
-  DATA strtimmed TYPE btch0000-char1 READ-ONLY .
-  DATA direct_start TYPE btch0000-char1 READ-ONLY .
-  DATA targetsystem TYPE msxxlist-name READ-ONLY .
-  DATA targetserver TYPE btctgtsrvr-srvname READ-ONLY .
-  DATA targetgroup TYPE bpsrvgrp READ-ONLY .
-  DATA recipient_obj TYPE swotobjid READ-ONLY .
-  DATA dont_release TYPE btch0000-char1 READ-ONLY .
+  DATA: name                        TYPE btcjob READ-ONLY,
+        count                       TYPE btcjobcnt READ-ONLY,
+        jclass                      TYPE btcjobclas READ-ONLY,
+        at_opmode                   TYPE spfba-baname READ-ONLY,
+        at_opmode_periodic          TYPE btch0000-char1 READ-ONLY,
+        event_id                    TYPE tbtcjob-eventid READ-ONLY,
+        event_param                 TYPE tbtcjob-eventparm READ-ONLY,
+        event_periodic              TYPE btch0000-char1 READ-ONLY,
+        sdlstrtdt                   TYPE tbtcjob-sdlstrtdt READ-ONLY,
+        sdlstrttm                   TYPE tbtcjob-sdlstrttm READ-ONLY,
+        laststrtdt                  TYPE tbtcjob-laststrtdt READ-ONLY,
+        laststrttm                  TYPE tbtcjob-laststrttm READ-ONLY,
+        prddays                     TYPE tbtcjob-prddays READ-ONLY,
+        prdhours                    TYPE tbtcjob-prdhours READ-ONLY,
+        prdmins                     TYPE tbtcjob-prdmins READ-ONLY,
+        prdmonths                   TYPE tbtcjob-prdmonths READ-ONLY,
+        prdweeks                    TYPE tbtcjob-prdweeks READ-ONLY,
+        calendar_id                 TYPE tbtcjob-calendarid READ-ONLY,
+        startdate_restriction       TYPE tbtcjob-prdbehav READ-ONLY,
+        start_on_workday_not_before TYPE tbtcstrt-notbefore READ-ONLY,
+        start_on_workday_nr         TYPE tbtcstrt-wdayno READ-ONLY,
+        workday_count_direction     TYPE tbtcstrt-wdaycdir READ-ONLY,
+        predjob_checkstat           TYPE tbtcstrt-checkstat READ-ONLY,
+        pred_jobcount               TYPE tbtcjob-jobcount READ-ONLY,
+        pred_jobname                TYPE tbtcjob-jobname READ-ONLY,
+        strtimmed                   TYPE btch0000-char1 READ-ONLY,
+        direct_start                TYPE btch0000-char1 READ-ONLY,
+        targetsystem                TYPE msxxlist-name READ-ONLY,
+        targetserver                TYPE btctgtsrvr-srvname READ-ONLY,
+        targetgroup                 TYPE bpsrvgrp READ-ONLY,
+        recipient_obj               TYPE swotobjid READ-ONLY,
+        dont_release                TYPE btch0000-char1 READ-ONLY.
 
+  "! <p class="shorttext synchronized" lang="en">OBSOLETE - use SET_SERVER</p>
   METHODS set_server_old
     IMPORTING
       !server_old TYPE msxxlist-name
     RETURNING
       VALUE(job)  TYPE REF TO zif_job.
+
+  "! <p class="shorttext synchronized" lang="en">OBSOLETE - use SET_SERVER</p>
   METHODS set_server
     IMPORTING
       !server    TYPE btctgtsrvr-srvname
     RETURNING
       VALUE(job) TYPE REF TO zif_job .
+
+  "! <p class="shorttext synchronized" lang="en">Start on specific group of application servers (SM61)</p>
   METHODS set_server_group
     IMPORTING
       !server_group TYPE bpsrvgrp
     RETURNING
       VALUE(job)    TYPE REF TO zif_job .
   TYPE-POOLS abap .
+
+  "! <p class="shorttext synchronized" lang="en">Start job immediately</p>
   METHODS start_immediately
     IMPORTING
       !error_if_cant_start_immed TYPE abap_bool DEFAULT abap_false
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter report | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter variant | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter user | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter language | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter free_selections | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter selection_table | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter print_parameters | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter archive_parameters | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS add_step_abap
     IMPORTING
       !report             TYPE program
@@ -121,6 +146,20 @@ INTERFACE zif_job
 *      VALUE(step_number)  TYPE bapixmjob-stepcount
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter program | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter parameters | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter server | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter rfcdest | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter set_trace_on | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter stderr_in_joblog | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter stdout_in_joblog | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter wait_for_termination | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter user | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS add_step_external_program
     IMPORTING
       !program              TYPE tbtcstep-program
@@ -137,6 +176,21 @@ INTERFACE zif_job
 *      VALUE(step_number)    TYPE bapixmjob-stepcount
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter command | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter operating_system | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter parameters | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter server | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter rfcdest | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter set_trace_on | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter stderr_in_joblog | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter stdout_in_joblog | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter wait_for_termination | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter user | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS add_step_external_command
     IMPORTING
       !command              TYPE sxpgcolist-name
@@ -154,6 +208,8 @@ INTERFACE zif_job
 *      VALUE(step_number)    TYPE bapixmjob-stepcount
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en">Start job at a given date/time</p>
   METHODS start_at
     IMPORTING
       !date                TYPE d
@@ -164,6 +220,21 @@ INTERFACE zif_job
       VALUE(job)           TYPE REF TO zif_job
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter first_date | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter first_time | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter skip_if_not_started_in_minutes | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter months | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter weeks | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter days | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter hours | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter mins | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter calendar_id | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter rule_if_date_falls_on_holiday | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS start_periodically
     IMPORTING
       !first_date                     TYPE d
@@ -180,6 +251,18 @@ INTERFACE zif_job
       VALUE(job)                      TYPE REF TO zif_job
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter first_date | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter first_time | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter skip_if_not_started_in_minutes | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter months | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter calendar_id | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter nth_workday | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter start_on_workday_not_before | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS start_monthly_nth_workday
     IMPORTING
       !first_date                     TYPE d
@@ -193,22 +276,38 @@ INTERFACE zif_job
       VALUE(job)                      TYPE REF TO zif_job
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter successor | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter checkstat | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS set_successor_job
     IMPORTING
-      !successor         TYPE REF TO zif_job
-      !checkstat         TYPE tbtcstrt-checkstat DEFAULT abap_false
+      !successor TYPE REF TO zif_job
+      !checkstat TYPE tbtcstrt-checkstat DEFAULT abap_false
     RETURNING
-      VALUE(job)         TYPE REF TO zif_job
+      VALUE(job) TYPE REF TO zif_job
     RAISING
       zcx_job.
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter predecessor | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter predjob_checkstat | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS start_after_job
     IMPORTING
       !predecessor       TYPE REF TO zif_job
       !predjob_checkstat TYPE tbtcstrt-checkstat DEFAULT abap_false
     RETURNING
-      VALUE(job)          TYPE REF TO zif_job
+      VALUE(job)         TYPE REF TO zif_job
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en">Start job after event is triggered (SM62)</p>
   METHODS start_after_event
     IMPORTING
       !id        TYPE tbtcjob-eventid
@@ -218,6 +317,8 @@ INTERFACE zif_job
       VALUE(job) TYPE REF TO zif_job
     RAISING
       zcx_job .
+
+  "! <p class="shorttext synchronized" lang="en">Start job when new operation mode starts (SM63)</p>
   METHODS start_at_opmode_switch
     IMPORTING
       !opmode          TYPE spfba-baname
@@ -227,6 +328,11 @@ INTERFACE zif_job
     RAISING
       zcx_job .
 
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "!
+  "! @parameter check_actual_status | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter state | <p class="shorttext synchronized" lang="en"></p>
+  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS get_state
     IMPORTING
       !check_actual_status TYPE abap_bool DEFAULT abap_false
@@ -234,4 +340,5 @@ INTERFACE zif_job
       VALUE(state)         TYPE btcstatus
     RAISING
       zcx_job .
+
 ENDINTERFACE.

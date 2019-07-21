@@ -21,30 +21,31 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *  SOFTWARE.
 ********************************************************************************
-class ZCL_JOB_UTILITY definition
-  public
-  create public .
+"! <p class="shorttext synchronized" lang="en">Job utilities</p>
+CLASS zcl_job_utility DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  types:
-    ty_ut_job TYPE TABLE OF REF TO zif_job .
+    TYPES:
+      ty_ut_job TYPE TABLE OF REF TO zif_job .
 
-  class-methods WAIT_JOBS
-    importing
-      !JOBS type TY_UT_JOB optional
-      !DELAY type NUMERIC default 10
-    preferred parameter JOBS
-    raising
-      ZCX_JOB .
+    CLASS-METHODS wait_jobs
+      IMPORTING
+        !jobs  TYPE ty_ut_job OPTIONAL
+        !delay TYPE numeric DEFAULT 10
+          PREFERRED PARAMETER jobs
+      RAISING
+        zcx_job .
 ENDCLASS.
 
 
 
-CLASS ZCL_JOB_UTILITY IMPLEMENTATION.
+CLASS zcl_job_utility IMPLEMENTATION.
 
 
-  METHOD WAIT_JOBS.
+  METHOD wait_jobs.
 
     DATA: lo_job TYPE REF TO zif_job.
 
@@ -54,7 +55,8 @@ CLASS ZCL_JOB_UTILITY IMPLEMENTATION.
             WHERE table_line IS BOUND.
 
         CASE lo_job->get_state( ).
-          WHEN tybtc_finished OR tybtc_aborted.
+          WHEN lo_job->state-finished
+            OR lo_job->state-aborted.
             EXIT.
         ENDCASE.
 
