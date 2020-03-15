@@ -5,7 +5,7 @@
    <VSEOINTERF>
     <CLSNAME>ZIF_JOB</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>JOB</DESCRIPT>
+    <DESCRIPT>Background Job interface</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>
@@ -31,15 +31,15 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIF_JOB</CLSNAME>
-     <CMPNAME>START_AFTER_EVENT</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Start job after event is triggered (SM62)</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZIF_JOB</CLSNAME>
      <CMPNAME>START_AT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Start job at a given date/time</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_JOB</CLSNAME>
+     <CMPNAME>START_AT_EVENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start job after event is triggered (SM62)</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZIF_JOB</CLSNAME>

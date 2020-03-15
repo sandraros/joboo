@@ -21,9 +21,10 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *  SOFTWARE.
 ********************************************************************************
+"! <p class="shorttext synchronized" lang="en">Background job</p>
 CLASS zcl_job DEFINITION
   PUBLIC
-  CREATE PRIVATE .
+  CREATE PRIVATE.
 
   PUBLIC SECTION.
 
@@ -32,258 +33,126 @@ CLASS zcl_job DEFINITION
     CONSTANTS no_date TYPE d VALUE space ##NO_TEXT.
     CONSTANTS no_time TYPE t VALUE space ##NO_TEXT.
 
-    CLASS-METHODS new " used instead of constructor to cast automatically into ZIF_JOB
+    "! (used instead of constructor to cast)
+    CLASS-METHODS new
       IMPORTING
         !name           TYPE btcjob
-        !user           TYPE syuname DEFAULT sy-uname
-        !class          TYPE bapixmjob-jobclass DEFAULT zif_job=>class-c
+        !class          TYPE bapixmjob-jobclass OPTIONAL "DEFAULT zif_job=>class-c
         !check_jobclass TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(job)      TYPE REF TO zif_job
       RAISING
         zcx_job .
 
+    ALIASES:
+        ty_ut_job                   FOR zif_job~ty_ut_job,
+        ty_us_repeating_period      FOR zif_job~ty_us_repeating_period,
+        ty_calendar_rule            FOR zif_job~ty_calendar_rule,
+        ty_workday_count_direction  FOR zif_job~ty_workday_count_direction,
+        ty_us_working_days          FOR zif_job~ty_us_working_days,
+        direction                   FOR zif_job~direction,
+        at_opmode                   FOR zif_job~at_opmode,
+        at_opmode_periodic          FOR zif_job~at_opmode_periodic,
+        calendar_id                 FOR zif_job~calendar_id,
+        calendar_rule               FOR zif_job~calendar_rule,
+        class                       FOR zif_job~class,
+        count                       FOR zif_job~count,
+        direct_start                FOR zif_job~direct_start ,
+        dont_release                FOR zif_job~dont_release ,
+        event_id                    FOR zif_job~event_id ,
+        event_param                 FOR zif_job~event_param ,
+        event_periodic              FOR zif_job~event_periodic ,
+        jclass                      FOR zif_job~jclass ,
+        laststrtdt                  FOR zif_job~laststrtdt ,
+        laststrttm                  FOR zif_job~laststrttm ,
+        name                        FOR zif_job~name ,
+        prddays                     FOR zif_job~prddays ,
+        prdhours                    FOR zif_job~prdhours ,
+        prdmins                     FOR zif_job~prdmins ,
+        prdmonths                   FOR zif_job~prdmonths ,
+        prdweeks                    FOR zif_job~prdweeks ,
+        predjob_checkstat           FOR zif_job~predjob_checkstat ,
+        pred_jobcount               FOR zif_job~pred_jobcount ,
+        pred_jobname                FOR zif_job~pred_jobname ,
+        recipient_obj               FOR zif_job~recipient_obj ,
+        sdlstrtdt                   FOR zif_job~sdlstrtdt ,
+        sdlstrttm                   FOR zif_job~sdlstrttm ,
+        startdate_restriction       FOR zif_job~startdate_restriction ,
+        start_on_workday_not_before FOR zif_job~start_on_workday_not_before ,
+        start_on_workday_nr         FOR zif_job~start_on_workday_nr ,
+        state                       FOR zif_job~state ,
+        strtimmed                   FOR zif_job~strtimmed ,
+        targetgroup                 FOR zif_job~targetgroup ,
+        targetserver                FOR zif_job~targetserver ,
+        targetsystem                FOR zif_job~targetsystem ,
+        workday_count_direction     FOR zif_job~workday_count_direction.
+
+protected section.
+  PRIVATE SECTION.
+
+    CLASS-METHODS inject_td
+      IMPORTING
+        td TYPE REF TO zif_job_llop.
+
+    CLASS-DATA default_td TYPE REF TO zif_job_llop.
+    DATA td TYPE REF TO zif_job_llop.
+
     METHODS constructor
       IMPORTING
         !name           TYPE btcjob
-        !user           TYPE syuname DEFAULT sy-uname
+        !jobgroup       TYPE btcjobgrp OPTIONAL
         !class          TYPE bapixmjob-jobclass DEFAULT zif_job=>class-c
         !check_jobclass TYPE abap_bool DEFAULT abap_false
       RAISING
         zcx_job .
 
-  PRIVATE SECTION.
-
     CLASS-METHODS convert_sy_to_bapiret2
       RETURNING
         VALUE(bapiret2) TYPE bapiret2 .
+
     CLASS-METHODS check_ret_code
       IMPORTING
-        !ret          TYPE i
-        !this_routine TYPE csequence
+        ret          TYPE i
+        this_routine TYPE csequence
       RAISING
         zcx_job .
-    METHODS close
+
+    METHODS _close
       RAISING
         zcx_job .
-    METHODS submit
-      IMPORTING
-        !arcparams                   TYPE arc_params OPTIONAL
-        !authcknam                   TYPE tbtcjob-authcknam
-        !commandname                 TYPE sxpgcolist-name OPTIONAL
-        !operatingsystem             TYPE sy-opsys OPTIONAL
-        !extpgm_name                 TYPE tbtcstep-program OPTIONAL
-        !extpgm_param                TYPE tbtcstep-parameter OPTIONAL
-        !extpgm_set_trace_on         TYPE btch0000-char1 OPTIONAL
-        !extpgm_stderr_in_joblog     TYPE btch0000-char1 DEFAULT 'X'
-        !extpgm_stdout_in_joblog     TYPE btch0000-char1 DEFAULT 'X'
-        !extpgm_system               TYPE tbtcstep-xpgtgtsys OPTIONAL
-        !extpgm_rfcdest              TYPE tbtcstep-xpgrfcdest OPTIONAL
-        !extpgm_wait_for_termination TYPE btch0000-char1 OPTIONAL
-        !language                    TYPE sy-langu DEFAULT sy-langu
-        !priparams                   TYPE pri_params OPTIONAL
-        !report                      TYPE sy-repid OPTIONAL
-        !variant                     TYPE raldb-variant OPTIONAL
-        !this_routine                TYPE symsgv
-      EXPORTING
-        !step_number                 TYPE tbtcjob-stepcount
-      RAISING
-        zcx_job .
+
+
+    "! <p class="shorttext synchronized" lang="en"></p>
+    "!
+    "! @parameter print_parameters | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter archive_parameters | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter report | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter user | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter ARCPARAMS | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter PRIPARAMS | <p class="shorttext synchronized" lang="en"></p>
+    "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
     METHODS process_print_archive_params
       IMPORTING
         VALUE(print_parameters)   TYPE bapipripar
         VALUE(archive_parameters) TYPE bapiarcpar
-        !report                   TYPE program
-        !user                     TYPE syuname
+        report                    TYPE program
+        user                      TYPE syuname
       EXPORTING
-        !arcparams                TYPE arc_params
-        !priparams                TYPE pri_params
+        arcparams                 TYPE arc_params
+        priparams                 TYPE pri_params
       RAISING
         zcx_job .
-
-  aliases AT_OPMODE
-    for ZIF_JOB~AT_OPMODE .
-  aliases AT_OPMODE_PERIODIC
-    for ZIF_JOB~AT_OPMODE_PERIODIC .
-  aliases CALENDAR_ID
-    for ZIF_JOB~CALENDAR_ID .
-  aliases CALENDAR_RULE
-    for ZIF_JOB~CALENDAR_RULE .
-  aliases CLASS
-    for ZIF_JOB~CLASS .
-  aliases COUNT
-    for ZIF_JOB~COUNT .
-  aliases DIRECT_START
-    for ZIF_JOB~DIRECT_START .
-  aliases DONT_RELEASE
-    for ZIF_JOB~DONT_RELEASE .
-  aliases EVENT_ID
-    for ZIF_JOB~EVENT_ID .
-  aliases EVENT_PARAM
-    for ZIF_JOB~EVENT_PARAM .
-  aliases EVENT_PERIODIC
-    for ZIF_JOB~EVENT_PERIODIC .
-  aliases JCLASS
-    for ZIF_JOB~JCLASS .
-  aliases LASTSTRTDT
-    for ZIF_JOB~LASTSTRTDT .
-  aliases LASTSTRTTM
-    for ZIF_JOB~LASTSTRTTM .
-  aliases NAME
-    for ZIF_JOB~NAME .
-  aliases PRDDAYS
-    for ZIF_JOB~PRDDAYS .
-  aliases PRDHOURS
-    for ZIF_JOB~PRDHOURS .
-  aliases PRDMINS
-    for ZIF_JOB~PRDMINS .
-  aliases PRDMONTHS
-    for ZIF_JOB~PRDMONTHS .
-  aliases PRDWEEKS
-    for ZIF_JOB~PRDWEEKS .
-  aliases PREDJOB_CHECKSTAT
-    for ZIF_JOB~PREDJOB_CHECKSTAT .
-  aliases PRED_JOBCOUNT
-    for ZIF_JOB~PRED_JOBCOUNT .
-  aliases PRED_JOBNAME
-    for ZIF_JOB~PRED_JOBNAME .
-  aliases RECIPIENT_OBJ
-    for ZIF_JOB~RECIPIENT_OBJ .
-  aliases SDLSTRTDT
-    for ZIF_JOB~SDLSTRTDT .
-  aliases SDLSTRTTM
-    for ZIF_JOB~SDLSTRTTM .
-  aliases STARTDATE_RESTRICTION
-    for ZIF_JOB~STARTDATE_RESTRICTION .
-  aliases START_ON_WORKDAY_NOT_BEFORE
-    for ZIF_JOB~START_ON_WORKDAY_NOT_BEFORE .
-  aliases START_ON_WORKDAY_NR
-    for ZIF_JOB~START_ON_WORKDAY_NR .
-  aliases STATE
-    for ZIF_JOB~STATE .
-  aliases STRTIMMED
-    for ZIF_JOB~STRTIMMED .
-  aliases TARGETGROUP
-    for ZIF_JOB~TARGETGROUP .
-  aliases TARGETSERVER
-    for ZIF_JOB~TARGETSERVER .
-  aliases TARGETSYSTEM
-    for ZIF_JOB~TARGETSYSTEM .
-  aliases WORKDAY_COUNT_DIRECTION
-    for ZIF_JOB~WORKDAY_COUNT_DIRECTION .
 
 ENDCLASS.
 
 
 
-CLASS zcl_job IMPLEMENTATION.
-
-
-  METHOD zif_job~add_step_abap.
-    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_ABAP'.
-    DATA: arcparams TYPE arc_params,
-          priparams TYPE pri_params,
-          dummy     TYPE string,
-          step_number TYPE i.
-
-
-    process_print_archive_params(
-      EXPORTING
-        archive_parameters = archive_parameters
-        print_parameters = print_parameters
-        report = report
-        user = user
-      IMPORTING
-        arcparams = arcparams
-        priparams = priparams ).
-
-    IF selection_table IS INITIAL AND free_selections IS INITIAL.
-
-      submit(
-        EXPORTING
-          arcparams   = arcparams
-          authcknam   = user
-          language    = language
-          priparams   = priparams
-          report      = report
-          variant     = variant
-          this_routine = this_routine
-        IMPORTING
-          step_number = step_number ).
-
-    ELSEIF selection_table IS NOT INITIAL AND variant IS INITIAL AND user IS INITIAL.
-
-      SUBMIT (report)
-            VIA JOB me->zif_job~name NUMBER me->zif_job~count
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-    ELSEIF variant IS INITIAL.
-
-      SUBMIT (report)
-            VIA JOB me->zif_job~name NUMBER me->zif_job~count
-            USER user
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-*'Error with free selections'  "#EC NOTEXT
-*'Error with free selections / static variant'  "#EC NOTEXT
-    ELSEIF user IS INITIAL.
-
-      SUBMIT (report)
-            VIA JOB me->zif_job~name NUMBER me->zif_job~count
-            USING SELECTION-SET variant
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-    ELSE.
-
-      SUBMIT (report)
-            VIA JOB me->zif_job~name NUMBER me->zif_job~count
-            USER user
-            USING SELECTION-SET variant
-            WITH SELECTION-TABLE selection_table
-            TO SAP-SPOOL
-            WITHOUT SPOOL DYNPRO
-            ARCHIVE PARAMETERS arcparams
-            SPOOL PARAMETERS priparams
-            AND RETURN.
-      IF sy-subrc <> 0.
-        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-      ENDIF.
-
-    ENDIF.
-
-  ENDMETHOD.
+CLASS ZCL_JOB IMPLEMENTATION.
 
 
   METHOD check_ret_code.
     DATA dummy TYPE string.
+
     " based on subroutine XM_MAKE_BAPIRET2_EX in program SAPLSXBP
     CASE ret.
       WHEN tybtc_err_invalid_step_number.
@@ -317,174 +186,21 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD close.
-    CONSTANTS: this_routine TYPE symsgv VALUE 'JOB_CLOSE'.
-    DATA: job_was_released TYPE btch0000-char1,
-          ret              TYPE i,
-          dummy            TYPE string,
-          dont_release TYPE btch0000-char1.
+  METHOD constructor.
 
-    CALL FUNCTION 'JOB_CLOSE'
-      EXPORTING
-        jobcount                    = me->count
-        jobname                     = me->name
-*       --------------- mode ----------------
-        at_opmode                   = at_opmode
-        at_opmode_periodic          = at_opmode_periodic
-*       --------------- événement --------------
-        event_id                    = event_id
-        event_param                 = event_param
-        event_periodic              = event_periodic
-*       --------------- périodique --------------
-        sdlstrtdt                   = sdlstrtdt
-        sdlstrttm                   = sdlstrttm
-        laststrtdt                  = laststrtdt
-        laststrttm                  = laststrttm
-        prddays                     = prddays
-        prdhours                    = prdhours
-        prdmins                     = prdmins
-        prdmonths                   = prdmonths
-        prdweeks                    = prdweeks
-        calendar_id                 = calendar_id
-        startdate_restriction       = startdate_restriction
-        start_on_workday_not_before = start_on_workday_not_before
-        start_on_workday_nr         = start_on_workday_nr
-        workday_count_direction     = workday_count_direction
-*       --------------- job prédécesseur ---------
-        predjob_checkstat           = predjob_checkstat
-        pred_jobcount               = pred_jobcount
-        pred_jobname                = pred_jobname
-*       ------------------------------------------
-        strtimmed                   = strtimmed
-        direct_start                = direct_start
-*       ------------------------------------------
-        recipient_obj               = recipient_obj
-*       ------------------------------------------
-        targetsystem                = targetsystem
-        targetserver                = targetserver
-        targetgroup                 = targetgroup
-*       ------------------------------------------
-        dont_release                = dont_release
-      IMPORTING
-        job_was_released            = job_was_released
-      CHANGING
-        ret                         = ret
-      EXCEPTIONS
-        cant_start_immediate        = 1
-        invalid_startdate           = 2
-        jobname_missing             = 3
-        job_close_failed            = 4
-        job_nosteps                 = 5
-        job_notex                   = 6
-        lock_failed                 = 7
-        invalid_target              = 8
-        OTHERS                      = 9.
-    IF sy-subrc = 0.
-      IF dont_release = abap_false AND job_was_released = abap_false.
-        IF 0 = 1. MESSAGE e054(xm). ENDIF. " No authorization to release a job
-        MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_release_privileg.
-      ENDIF.
+    me->name   = name.
+    me->jclass = class.
+    IF default_td IS NOT BOUND.
+      me->td   = NEW lcl_low_level_ops( ).
     ELSE.
-      CASE sy-subrc.
-        WHEN 1.
-          IF 0 = 1. MESSAGE e066(xm). ENDIF. " Immediate start not currently possible
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_immediate_start_poss INTO dummy.
-        WHEN 2.
-          IF 0 = 1. MESSAGE e068(xm). ENDIF. " Invalid date or invalid time specified
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_date_time INTO dummy.
-        WHEN 3.
-          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_routine INTO dummy.
-        WHEN 4.
-          check_ret_code( ret = ret this_routine = this_routine ).
-        WHEN 5.
-          IF 0 = 1. MESSAGE e059(xm). ENDIF. " The specified job does not have any steps
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_jobsteps INTO dummy.
-        WHEN 6.
-          IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH this_routine INTO dummy.
-        WHEN 7.
-          IF 0 = 1. MESSAGE e261(xm). ENDIF. " Could not lock job &2, job count &3
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_lock_failed WITH space name count.
-        WHEN 8.
-          IF 0 = 1. MESSAGE e069(xm). ENDIF. " Invalid server name specified (server name = &1)
-          IF targetsystem IS NOT INITIAL.
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_server_name WITH targetsystem.
-          ELSEIF targetserver IS NOT INITIAL.
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_server_name WITH targetserver.
-          ELSE.
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_server_name WITH targetgroup.
-          ENDIF.
-        WHEN 9.
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
-      ENDCASE.
-
-      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-    ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD new.
-    CONSTANTS: this_routine TYPE symsgv VALUE 'JOB_OPEN'.
-    DATA: info  TYPE i,
-          ret   TYPE i,
-          dummy TYPE string.
-
-    job = new zcl_job(
-        name           = name
-        user           = user
-        class          = class
-        check_jobclass = check_jobclass
-    ).
-
-    DATA(job2) = CAST zcl_job( job ).
-    job2->name = to_upper( name ).
-    job2->jclass = class.
-    job2->sdlstrtdt = no_date. " date with spaces instead of zeroes, as defined in JOB_CLOSE
-    job2->sdlstrttm = no_time. " time with spaces instead of zeroes, as defined in JOB_CLOSE
-
-    CALL FUNCTION 'JOB_OPEN'
-      EXPORTING
-        jobname          = job2->name
-        jobclass         = job2->class    " Job classification
-        check_jobclass   = check_jobclass
-      IMPORTING
-        jobcount         = job2->count
-        info             = info    " ID Number of Background Job
-      CHANGING
-        ret              = ret    " Special Additional Error Code
-      EXCEPTIONS
-        cant_create_job  = 1
-        invalid_job_data = 2
-        jobname_missing  = 3
-        OTHERS           = 4.
-
-    " the following messages are based on BAPI_XBP_JOB_OPEN error handling.
-    IF sy-subrc <> 0.
-      CASE sy-subrc.
-        WHEN 1.
-          check_ret_code( ret = ret this_routine = this_routine ).
-        WHEN 2.
-          IF 0 = 1. MESSAGE e202(xm). ENDIF. " Invalid new job data
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_new_jobdata INTO dummy.
-        WHEN 3.
-          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_routine INTO dummy.
-        WHEN 4.
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine INTO dummy.
-      ENDCASE.
-
-      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-
+      me->td   = default_td.
     ENDIF.
 
   ENDMETHOD.
 
 
   METHOD convert_sy_to_bapiret2.
+
     bapiret2-id = sy-msgid.
     bapiret2-type = sy-msgty.
     bapiret2-number = sy-msgno.
@@ -493,94 +209,46 @@ CLASS zcl_job IMPLEMENTATION.
     bapiret2-message_v3 = sy-msgv3.
     bapiret2-message_v4 = sy-msgv4.
     MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 INTO bapiret2-message.
+
   ENDMETHOD.
 
 
-  METHOD zif_job~get_state.
-    DATA: job_read_jobhead TYPE tbtcjob,
-          dummy            TYPE string.
+  METHOD inject_td.
 
-    IF check_actual_status = abap_false.
+    zcl_job=>default_td = td.
 
-      CALL FUNCTION 'BP_JOB_READ'
-        EXPORTING
-          job_read_jobcount     = count
-          job_read_jobname      = name
-          job_read_opcode       = tybtc_read_jobhead_only
-*         JOB_STEP_NUMBER       = JOB_STEP_NUMBER
-        IMPORTING
-          job_read_jobhead      = job_read_jobhead
-*         JOBLOG_ATTRIBUTES     = JOBLOG_ATTRIBUTES
-*         EPP_ATTRIBUTES        = EPP_ATTRIBUTES
-*     TABLES
-*         JOB_READ_STEPLIST     = JOB_READ_STEPLIST
-*         SPOOL_ATTRIBUTES      = SPOOL_ATTRIBUTES
-*     CHANGING
-*         RET                   = RET
-        EXCEPTIONS
-*         INVALID_OPCODE        = 1
-          job_doesnt_exist      = 2
-          job_doesnt_have_steps = 3
-          OTHERS                = 99.
+  ENDMETHOD.
 
-      IF sy-subrc <> 0.
-        CASE sy-subrc.
-          WHEN 2.
-            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_READ' INTO dummy.
-          WHEN OTHERS.
-            " TODO msg_problem_detected
-        ENDCASE.
 
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+  METHOD new.
+    DATA: info TYPE i,
+          ret  TYPE i.
 
-      ENDIF.
+    DATA(new_job) = NEW zcl_job(
+        name  = name
+        class = class ).
 
-      state = job_read_jobhead-status.
+    new_job->sdlstrtdt = no_date. " date with spaces instead of zeroes, as defined in JOB_CLOSE
+    new_job->sdlstrttm = no_time. " time with spaces instead of zeroes, as defined in JOB_CLOSE
 
-    ELSE.
+    new_job->td->job_open(
+      EXPORTING
+        jobname          = new_job->name
+        jobclass         = new_job->jclass
+        check_jobclass   = check_jobclass
+      IMPORTING
+        jobcount         = new_job->count
+        info             = info
+      CHANGING
+        ret              = ret ).
 
-      CALL FUNCTION 'BP_JOB_CHECKSTATE'
-        EXPORTING
-          dialog                       = 'N'
-          jobcount                     = count
-          jobname                      = name
-          time_limit                   = 60
-        IMPORTING
-          actual_status                = state
-        EXCEPTIONS
-          checking_of_job_has_failed   = 1
-          correcting_job_status_failed = 2
-*         invalid_dialog_type          = 3
-          job_does_not_exist           = 4
-          no_check_privilege_given     = 5
-          ready_switch_too_dangerous   = 0 "normal situation below 60 seconds
-          OTHERS                       = 7.
-
-      IF sy-subrc <> 0.
-        CASE sy-subrc.
-          WHEN 4.
-            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_CHECKSTATE' INTO dummy.
-          WHEN 5.
-            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_privilege_missing INTO dummy.
-          WHEN OTHERS.
-            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
-            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected INTO dummy.
-        ENDCASE.
-
-        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
-
-      ENDIF.
-
-    ENDIF.
+    job = new_job.
 
   ENDMETHOD.
 
 
   METHOD process_print_archive_params.
-    CONSTANTS : this_routine         TYPE symsgv VALUE 'ADD_STEP_ABAP',
+    CONSTANTS : this_routine         TYPE symsgv VALUE 'ADD_STEP_ABAP' ##NO_TEXT,
                 c_char_unknown       TYPE c VALUE '_', "Unbekannt C
                 c_int_unknown        TYPE i VALUE -1,  "Unbekannt I
                 c_num1_unknown       TYPE n VALUE '0', "Unbekannt N(1)
@@ -589,42 +257,42 @@ CLASS zcl_job IMPLEMENTATION.
 
     " code taken from subroutine INIT_PRINT_PARAMETERS in program SAPLSXBP.
 
-* for some values, we have to rely on the caller for
-* the correct initialization because SPACE is not the
-* default value
+    " for some values, we have to rely on the caller for
+    " the correct initialization because SPACE is not the
+    " default value
 
     IF print_parameters-primm IS INITIAL OR
        print_parameters-primm = space.
       print_parameters-primm = c_char_unknown.
-* caller must pass '$' if 'do not print immediately' shall be set
+      " caller must pass '$' if 'do not print immediately' shall be set
     ELSEIF print_parameters-primm = c_char_space_request.
       CLEAR print_parameters-primm.
     ENDIF.
 
     IF print_parameters-prrel IS INITIAL.
       print_parameters-prrel = c_char_unknown.
-* caller must pass '$' if 'do not release after print' shall be set
+      " caller must pass '$' if 'do not release after print' shall be set
     ELSEIF print_parameters-prrel = c_char_space_request.
       CLEAR print_parameters-prrel.
     ENDIF.
 
     IF print_parameters-prnew IS INITIAL.
       print_parameters-prnew = c_char_unknown.
-* caller must pass '$' if 'append spool' shall be set
+      " caller must pass '$' if 'append spool' shall be set
     ELSEIF print_parameters-prnew = c_char_space_request.
       CLEAR print_parameters-prnew.
     ENDIF.
 
     IF print_parameters-prsap IS INITIAL.
       print_parameters-prsap = c_char_unknown.
-* caller must pass '$' if 'no SAP cover page' shall be set
+      " caller must pass '$' if 'no SAP cover page' shall be set
     ELSEIF print_parameters-prsap = c_char_space_request.
       CLEAR print_parameters-prsap.
     ENDIF.
 
     IF print_parameters-prunx IS INITIAL.
       print_parameters-prunx = c_char_unknown.
-* caller must pass '$' if 'no host spool cover page' shall be set
+      " caller must pass '$' if 'no host spool cover page' shall be set
     ELSEIF print_parameters-prunx = c_char_space_request.
       CLEAR print_parameters-prunx.
     ENDIF.
@@ -639,7 +307,7 @@ CLASS zcl_job IMPLEMENTATION.
 
     IF print_parameters-prrec IS INITIAL.
       print_parameters-prrec = user.
-* caller must pass '$' if SPACE shall be set
+      " caller must pass '$' if SPACE shall be set
     ELSEIF print_parameters-prrec = c_char_space_request.
       CLEAR print_parameters-prrec.
     ENDIF.
@@ -682,7 +350,7 @@ CLASS zcl_job IMPLEMENTATION.
 
     IF print_parameters-prabt = 'SPACE'.
       CLEAR print_parameters-prabt.
-* caller must pass '$' if SPACE shall be set
+      " caller must pass '$' if SPACE shall be set
     ELSEIF print_parameters-prabt = c_char_space_request.
       CLEAR print_parameters-prabt.
     ENDIF.
@@ -695,10 +363,7 @@ CLASS zcl_job IMPLEMENTATION.
       print_parameters-prdsn = c_char_unknown.
     ENDIF.
 
-*  IF print_parameters-ptype IS INITIAL OR
-*     print_parameters-ptype = space.
     print_parameters-ptype = c_char_unknown.
-*  ENDIF.
 
     IF print_parameters-footl IS INITIAL.
       print_parameters-footl = c_char_unknown.
@@ -751,14 +416,12 @@ CLASS zcl_job IMPLEMENTATION.
         destination            = priparams-pdest
         expiration             = priparams-pexpi
         immediately            = priparams-primm
-*       IN_ARCHIVE_PARAMETERS  = allpripar-
-*       IN_PARAMETERS          = allpripar-
         layout                 = priparams-paart
         line_count             = priparams-linct
         line_size              = priparams-linsz
         list_name              = priparams-plist
         list_text              = priparams-prtxt
-        mode                   = 'BATCH'
+        mode                   = 'BATCH' ##NO_TEXT
         new_list_id            = priparams-prnew
         no_dialog              = 'X'
         receiver               = priparams-prrec
@@ -773,7 +436,6 @@ CLASS zcl_job IMPLEMENTATION.
       IMPORTING
         out_archive_parameters = arcparams
         out_parameters         = priparams
-*       valid                  = valid_pri_params
       EXCEPTIONS
         archive_info_not_found = 1
         invalid_print_params   = 2
@@ -802,206 +464,68 @@ CLASS zcl_job IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_job~set_server.
-    me->targetserver = server.
-    CLEAR : me->targetgroup, me->targetsystem.
-  ENDMETHOD.
+  METHOD zif_job~add_step_abap.
+
+    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_ABAP' ##NO_TEXT.
+    DATA: arcparams   TYPE arc_params,
+          priparams   TYPE pri_params,
+          step_number TYPE i.
 
 
-  METHOD zif_job~set_server_group.
-    me->targetgroup = server_group.
-    CLEAR : me->targetserver, me->targetsystem.
-  ENDMETHOD.
+*    process_print_archive_params(
+*      EXPORTING
+*        archive_parameters = archive_parameters
+*        print_parameters   = print_parameters
+*        report             = report
+*        user               = user
+*      IMPORTING
+*        arcparams          = arcparams
+*        priparams          = priparams ).
 
+    IF selection_table IS INITIAL AND free_selections IS INITIAL.
 
-  METHOD zif_job~set_server_old.
-    me->targetsystem = server_old.
-    CLEAR : me->targetserver, me->targetgroup.
-  ENDMETHOD.
+      td->job_submit(
+        EXPORTING
+          jobname     = me->name
+          jobcount    = me->count
+          arcparams   = arcparams
+          authcknam   = user
+          language    = language
+          priparams   = priparams
+          report      = report
+          variant     = variant
+          this_routine = this_routine
+        IMPORTING
+          step_number = step_number ).
 
-
-  METHOD zif_job~start_after_event.
-
-    me->event_id = event_id.
-    me->event_param = event_param.
-    me->event_periodic = event_periodic.
-    close( ).
-
-  ENDMETHOD.
-
-
-  METHOD zif_job~start_after_job.
-
-    pred_jobcount = job->count.
-    pred_jobname = job->name.
-    close( ).
-
-  ENDMETHOD.
-
-
-  METHOD zif_job~start_at.
-
-    me->sdlstrtdt = date.
-    me->sdlstrttm = time.
-    close( ).
-
-  ENDMETHOD.
-
-
-  METHOD zif_job~start_at_opmode_switch.
-    me->at_opmode = opmode.
-    me->at_opmode_periodic = opmode_periodic.
-    close( ).
-  ENDMETHOD.
-
-
-  METHOD zif_job~start_immediately.
-
-    me->strtimmed = abap_true.
-    IF error_if_cant_start_immed = abap_true.
-      me->direct_start = abap_true.
     ELSE.
-      me->direct_start = abap_false.
-    ENDIF.
-    close( ).
 
-  ENDMETHOD.
-
-
-  METHOD zif_job~start_monthly_nth_workday.
-    DATA: tstmp      TYPE timestamp,
-          tstmp_numc TYPE n LENGTH 14.
-
-    me->sdlstrtdt = first_date.
-    me->sdlstrttm = first_time.
-    tstmp = first_date && first_time.
-    tstmp_numc = tstmp = cl_abap_tstmp=>add( tstmp = tstmp secs = skip_if_not_started_in_minutes * 60 ).
-*      CATCH cx_parameter_invalid_range.    " Parameter with Invalid Range
-*      CATCH cx_parameter_invalid_type.    " Parameter with Invalid Type
-    me->laststrtdt = tstmp_numc(8).
-    me->laststrttm = tstmp_numc+8(6).
-    me->prdmonths = months.
-    me->calendar_id = calendar_id.
-    IF nth_workday > 0.
-      me->start_on_workday_nr = nth_workday.
-      me->workday_count_direction = tybtc_beginning_of_month.
-    ELSE.
-      me->start_on_workday_nr = -1 * nth_workday.
-      me->workday_count_direction = tybtc_end_of_month.
-    ENDIF.
-    close( ).
-
-  ENDMETHOD.
-
-
-  METHOD zif_job~start_periodically.
-    DATA: tstmp      TYPE timestamp,
-          tstmp_numc TYPE n LENGTH 14.
-
-    me->sdlstrtdt = first_date.
-    me->sdlstrttm = first_time.
-    tstmp = first_date && first_time.
-    tstmp_numc = tstmp = cl_abap_tstmp=>add( tstmp = tstmp secs = skip_if_not_started_in_minutes * 60 ).
-*      CATCH cx_parameter_invalid_range.    " Parameter with Invalid Range
-*      CATCH cx_parameter_invalid_type.    " Parameter with Invalid Type
-    me->laststrtdt = tstmp_numc(8).
-    me->laststrttm = tstmp_numc+8(6).
-    me->prddays   = days  .
-    me->prdhours  = hours .
-    me->prdmins   = mins  .
-    me->prdmonths = months.
-    me->prdweeks  = weeks .
-    me->startdate_restriction = rule_if_date_falls_on_holiday.
-    me->calendar_id = calendar_id.
-    close( ).
-
-  ENDMETHOD.
-
-
-  METHOD submit.
-    DATA dummy TYPE string.
-
-    CALL FUNCTION 'JOB_SUBMIT'
-      EXPORTING
-        arcparams                   = arcparams
-        authcknam                   = authcknam
-        commandname                 = commandname
-        operatingsystem             = operatingsystem
-        extpgm_name                 = extpgm_name
-        extpgm_param                = extpgm_param
-        extpgm_set_trace_on         = extpgm_set_trace_on
-        extpgm_stderr_in_joblog     = extpgm_stderr_in_joblog
-        extpgm_stdout_in_joblog     = extpgm_stdout_in_joblog
-        extpgm_system               = extpgm_system
-        extpgm_rfcdest              = extpgm_rfcdest
-        extpgm_wait_for_termination = extpgm_wait_for_termination
-        jobcount                    = me->count
-        jobname                     = me->name
-        language                    = language
-        priparams                   = priparams
-        report                      = report
-        variant                     = variant
-      IMPORTING
-        step_number                 = step_number
-      EXCEPTIONS
-        bad_priparams               = 1
-        bad_xpgflags                = 2
-        invalid_jobdata             = 3
-        jobname_missing             = 4
-        job_notex                   = 5
-        job_submit_failed           = 6
-        lock_failed                 = 7
-        program_missing             = 8
-        prog_abap_and_extpg_set     = 9.
-
-    IF sy-subrc <> 0.
-      CASE sy-subrc.
-        WHEN 1.
-          " should not happen, it should have been intercepted during
-          " method process_print_archive_params.
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine INTO dummy.
-        WHEN 2.
-          " TODO créer un message pour XPGFLAGS
-        WHEN 3.
-          IF 0 = 1. MESSAGE e202(xm). ENDIF. " Invalid new job data
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_new_jobdata INTO dummy.
-        WHEN 4.
-          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_routine INTO dummy.
-        WHEN 5.
-          IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH this_routine INTO dummy.
-        WHEN 6.
-          MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
-        WHEN 7.
-          IF 0 = 1. MESSAGE e194(xm). ENDIF. " Job could not be locked
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_cant_enq_job INTO dummy.
-        WHEN 8.
-          IF 0 = 1. MESSAGE e050(xm). ENDIF. " Report or program not specified or name incomplete (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_progname_missing WITH this_routine INTO dummy.
-        WHEN 9.
-          " can't happen
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
-        WHEN 10.
-          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
-      ENDCASE.
-
-      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+      td->abap_submit(
+          jobname         = me->name
+          jobcount        = me->count
+          selection_table = selection_table
+          arcparams       = arcparams
+          user            = user
+          priparams       = priparams
+          report          = report
+          variant         = variant
+          this_routine    = this_routine ).
 
     ENDIF.
+
+    job = me.
 
   ENDMETHOD.
 
 
   METHOD zif_job~add_step_external_command.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_COMMAND' ##NO_TEXT.
-                                                                           DATA: step_number TYPE i.
+    DATA: step_number TYPE i.
 
-    CALL METHOD submit
+    td->job_submit(
       EXPORTING
+        jobname                     = me->name
+        jobcount                    = me->count
         commandname                 = command
         extpgm_param                = parameters
         operatingsystem             = operating_system
@@ -1013,16 +537,21 @@ CLASS zcl_job IMPLEMENTATION.
         authcknam                   = user
         this_routine                = this_routine
       IMPORTING
-        step_number                 = step_number.
+        step_number                 = step_number ).
+
+    job = me.
+
   ENDMETHOD.
 
 
   METHOD zif_job~add_step_external_program.
     CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_PROGRAM' ##NO_TEXT.
-                                                                           DATA: step_number TYPE i.
+    DATA: step_number TYPE i.
 
-    CALL METHOD submit
+    td->job_submit(
       EXPORTING
+        jobname                     = me->name
+        jobcount                    = me->count
         extpgm_name                 = program
         extpgm_param                = parameters
         extpgm_system               = server
@@ -1034,23 +563,254 @@ CLASS zcl_job IMPLEMENTATION.
         authcknam                   = user
         this_routine                = this_routine
       IMPORTING
-        step_number                 = step_number.
+        step_number                 = step_number ).
+
+    job = me.
+
   ENDMETHOD.
 
-  METHOD zif_job~set_successor_job.
-    IF successor IS NOT BOUND.
-      zcx_job=>raise( bapiret2 = value #( ) ).
+
+  METHOD zif_job~get_state.
+    DATA: job_read_jobhead TYPE tbtcjob,
+          dummy            TYPE string.
+
+    IF check_actual_status = abap_false.
+
+      CALL FUNCTION 'BP_JOB_READ'
+        EXPORTING
+          job_read_jobcount     = count
+          job_read_jobname      = name
+          job_read_opcode       = tybtc_read_jobhead_only
+        IMPORTING
+          job_read_jobhead      = job_read_jobhead
+        EXCEPTIONS
+          invalid_opcode        = 1 " TODO impossible
+          job_doesnt_exist      = 2
+          job_doesnt_have_steps = 3
+          OTHERS                = 99.
+
+      IF sy-subrc <> 0.
+        CASE sy-subrc.
+          WHEN 2.
+            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_READ' INTO dummy ##NO_TEXT.
+          WHEN OTHERS.
+            " TODO msg_problem_detected
+        ENDCASE.
+
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+
+      ENDIF.
+
+      state = job_read_jobhead-status.
+
+    ELSE.
+
+      CALL FUNCTION 'BP_JOB_CHECKSTATE'
+        EXPORTING
+          dialog                       = 'N'
+          jobcount                     = count
+          jobname                      = name
+          time_limit                   = 60
+        IMPORTING
+          actual_status                = state
+        EXCEPTIONS
+          checking_of_job_has_failed   = 1
+          correcting_job_status_failed = 2
+          "invalid_dialog_type          = 3 " TODO impossible
+          job_does_not_exist           = 4
+          no_check_privilege_given     = 5
+          ready_switch_too_dangerous   = 0 "normal situation below 60 seconds
+          OTHERS                       = 7.
+
+      IF sy-subrc <> 0.
+        CASE sy-subrc.
+          WHEN 4.
+            IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH 'BP_JOB_CHECKSTATE' INTO dummy ##NO_TEXT.
+          WHEN 5.
+            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_privilege_missing INTO dummy.
+          WHEN OTHERS.
+            IF 0 = 1. MESSAGE e064(xm). ENDIF. " No authorization to execute the operation
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected INTO dummy.
+        ENDCASE.
+
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+
+      ENDIF.
+
     ENDIF.
-    successor->start_after_job(
-      EXPORTING
-        predecessor       = me
-        predjob_checkstat = checkstat
-      RECEIVING
-        job               = job
-    ).
+
   ENDMETHOD.
 
-  METHOD constructor.
+
+  METHOD zif_job~set_server.
+
+    me->targetserver = server.
+    CLEAR : me->targetgroup, me->targetsystem.
+    job = me.
+
   ENDMETHOD.
 
+
+  METHOD zif_job~set_server_group.
+
+    me->targetgroup = server_group.
+    CLEAR : me->targetserver, me->targetsystem.
+    job = me.
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~set_server_old.
+
+    me->targetsystem = server_old.
+    CLEAR : me->targetserver, me->targetgroup.
+    job = me.
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~start_after_job.
+
+    pred_jobcount = predecessor->count.
+    pred_jobname = predecessor->name.
+    _close( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~start_at.
+
+    me->sdlstrtdt = date.
+    me->sdlstrttm = time.
+    _close( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~start_at_event.
+
+    me->event_id = event_id.
+    me->event_param = event_param.
+    me->event_periodic = event_periodic.
+    _close( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~start_at_opmode_switch.
+
+    me->at_opmode = opmode.
+    me->at_opmode_periodic = opmode_periodic.
+    _close( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~start_immediately.
+
+    me->strtimmed = abap_true.
+    IF error_if_cant_start_immed = abap_true.
+      me->direct_start = abap_true.
+    ELSE.
+      me->direct_start = abap_false.
+    ENDIF.
+    _close( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~start_monthly_nth_workday.
+    DATA: tstmp      TYPE timestamp,
+          tstmp_numc TYPE n LENGTH 14.
+
+    me->sdlstrtdt = first_date.
+    me->sdlstrttm = first_time.
+    tstmp = first_date && first_time.
+    tstmp_numc = tstmp = round( val = cl_abap_tstmp=>add( tstmp = tstmp secs = skip_if_not_started_in_minutes * 60 ) dec = 0 ).
+    me->laststrtdt = tstmp_numc(8).
+    me->laststrttm = tstmp_numc+8(6).
+    me->prdmonths = months.
+    me->calendar_id = calendar_id.
+    IF nth_workday > 0.
+      me->start_on_workday_nr = nth_workday.
+      me->workday_count_direction = tybtc_beginning_of_month.
+    ELSE.
+      me->start_on_workday_nr = -1 * nth_workday.
+      me->workday_count_direction = tybtc_end_of_month.
+    ENDIF.
+    _close( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_job~start_periodically.
+    DATA: tstmp      TYPE timestamp,
+          tstmp_numc TYPE n LENGTH 14.
+
+    me->sdlstrtdt = first_date.
+    me->sdlstrttm = first_time.
+    tstmp = first_date && first_time.
+    tstmp_numc = tstmp = round( val = cl_abap_tstmp=>add( tstmp = tstmp secs = skip_if_not_started_in_minutes * 60 ) dec = 0 ).
+    me->laststrtdt = tstmp_numc(8).
+    me->laststrttm = tstmp_numc+8(6).
+    me->prddays   = days  .
+    me->prdhours  = hours .
+    me->prdmins   = mins  .
+    me->prdmonths = months.
+    me->prdweeks  = weeks .
+    me->startdate_restriction = rule_if_date_falls_on_holiday.
+    me->calendar_id = calendar_id.
+    _close( ).
+
+  ENDMETHOD.
+
+
+  METHOD _close.
+
+    td->job_close(
+          EXPORTING
+            jobcount                    = me->count
+            jobname                     = me->name
+            "--------------- mode ----------------
+            at_opmode                   = at_opmode
+            at_opmode_periodic          = at_opmode_periodic
+            "--------------- event ---------------
+            event_id                    = event_id
+            event_param                 = event_param
+            event_periodic              = event_periodic
+            "----------- periodically -------------
+            sdlstrtdt                   = sdlstrtdt
+            sdlstrttm                   = sdlstrttm
+            laststrtdt                  = laststrtdt
+            laststrttm                  = laststrttm
+            prddays                     = prddays
+            prdhours                    = prdhours
+            prdmins                     = prdmins
+            prdmonths                   = prdmonths
+            prdweeks                    = prdweeks
+            calendar_id                 = calendar_id
+            startdate_restriction       = startdate_restriction
+            start_on_workday_not_before = start_on_workday_not_before
+            start_on_workday_nr         = start_on_workday_nr
+            workday_count_direction     = workday_count_direction
+            "------------- predecessor job --------------
+            predjob_checkstat           = predjob_checkstat
+            pred_jobcount               = pred_jobcount
+            pred_jobname                = pred_jobname
+            "------------------------------------------
+            strtimmed                   = strtimmed
+            direct_start                = direct_start
+            "------------------------------------------
+            recipient_obj               = recipient_obj
+            "------------------------------------------
+            targetsystem                = targetsystem
+            targetserver                = targetserver
+            targetgroup                 = targetgroup
+            "------------------------------------------
+            dont_release                = dont_release ).
+
+  ENDMETHOD.
 ENDCLASS.

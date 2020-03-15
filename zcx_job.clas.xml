@@ -5,6 +5,7 @@
    <VSEOCLASS>
     <CLSNAME>ZCX_JOB</CLSNAME>
     <LANGU>E</LANGU>
+    <DESCRIPT>Background job exception</DESCRIPT>
     <CATEGORY>40</CATEGORY>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>

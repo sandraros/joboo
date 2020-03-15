@@ -1,26 +1,27 @@
-class ZCX_JOB definition
-  public
-  inheriting from CX_STATIC_CHECK
-  create private .
+"! <p class="shorttext synchronized" lang="en">Background job exception</p>
+CLASS zcx_job DEFINITION
+  PUBLIC
+  INHERITING FROM cx_static_check
+  CREATE PRIVATE .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces IF_T100_MESSAGE .
+    INTERFACES if_t100_message .
 
-  data BAPIRET2 type BAPIRET2 read-only .
+    DATA bapiret2 TYPE bapiret2 READ-ONLY .
 
-  methods CONSTRUCTOR
-    importing
-      !TEXTID like IF_T100_MESSAGE=>T100KEY optional
-      !PREVIOUS like PREVIOUS optional
-      !BAPIRET2 type BAPIRET2 optional .
-  class-methods RAISE
-    importing
-      !BAPIRET2 type BAPIRET2
-    raising
-      ZCX_JOB .
-protected section.
-private section.
+    METHODS constructor
+      IMPORTING
+        !textid   LIKE if_t100_message=>t100key OPTIONAL
+        !previous LIKE previous OPTIONAL
+        !bapiret2 TYPE bapiret2 OPTIONAL .
+    CLASS-METHODS raise
+      IMPORTING
+        !bapiret2 TYPE bapiret2
+      RAISING
+        zcx_job .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
@@ -28,34 +29,33 @@ ENDCLASS.
 CLASS ZCX_JOB IMPLEMENTATION.
 
 
-method CONSTRUCTOR.
-CALL METHOD SUPER->CONSTRUCTOR
-EXPORTING
-PREVIOUS = PREVIOUS
-.
-me->BAPIRET2 = BAPIRET2 .
-clear me->textid.
-if textid is initial.
-  IF_T100_MESSAGE~T100KEY = IF_T100_MESSAGE=>DEFAULT_TEXTID.
-else.
-  IF_T100_MESSAGE~T100KEY = TEXTID.
-endif.
-endmethod.
+  METHOD constructor ##ADT_SUPPRESS_GENERATION.
+    CALL METHOD super->constructor
+      EXPORTING
+        previous = previous.
+    me->bapiret2 = bapiret2 .
+    CLEAR me->textid.
+    IF textid IS INITIAL.
+      if_t100_message~t100key = if_t100_message=>default_textid.
+    ELSE.
+      if_t100_message~t100key = textid.
+    ENDIF.
+  ENDMETHOD.
 
 
-METHOD raise.
-  DATA: ls_t100_key TYPE scx_t100key .
+  METHOD raise.
+    DATA: ls_t100_key TYPE scx_t100key .
 
-  ls_t100_key-msgno = bapiret2-number.
-  ls_t100_key-msgid = bapiret2-id.
-  ls_t100_key-attr1 = 'BAPIRET2-MESSAGE_V1' ##NO_TEXT.
-  ls_t100_key-attr2 = 'BAPIRET2-MESSAGE_V2' ##NO_TEXT.
-  ls_t100_key-attr3 = 'BAPIRET2-MESSAGE_V3' ##NO_TEXT.
-  ls_t100_key-attr4 = 'BAPIRET2-MESSAGE_V4' ##NO_TEXT.
+    ls_t100_key-msgno = bapiret2-number.
+    ls_t100_key-msgid = bapiret2-id.
+    ls_t100_key-attr1 = 'BAPIRET2-MESSAGE_V1' ##NO_TEXT.
+    ls_t100_key-attr2 = 'BAPIRET2-MESSAGE_V2' ##NO_TEXT.
+    ls_t100_key-attr3 = 'BAPIRET2-MESSAGE_V3' ##NO_TEXT.
+    ls_t100_key-attr4 = 'BAPIRET2-MESSAGE_V4' ##NO_TEXT.
 
-  RAISE EXCEPTION TYPE zcx_job
-    EXPORTING
-      textid   = ls_t100_key
-      bapiret2 = bapiret2.
-ENDMETHOD.
+    RAISE EXCEPTION TYPE zcx_job
+      EXPORTING
+        textid   = ls_t100_key
+        bapiret2 = bapiret2.
+  ENDMETHOD.
 ENDCLASS.

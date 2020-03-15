@@ -1,4 +1,15 @@
-"! <p class="shorttext synchronized" lang="en">JOB</p>
+"! Start methods:
+"! <ul>
+"! <li>START_IMMEDIATELY</li>
+"! <li>START_AT (given date and time)</li>
+"! <li>START_PERIODICALLY</li>
+"! <li>START_MONTHLY_NTH_WORKDAY</li>
+"! <li>START_AFTER_JOB</li>
+"! <li>START_AT_EVENT</li>
+"! <li>START_AT_OPMODE_SWITCH</li>
+"! <li></li>
+"! </ul>
+"! <p class="shorttext synchronized" lang="en">Background Job interface</p>
 INTERFACE zif_job
   PUBLIC .
 
@@ -216,8 +227,6 @@ INTERFACE zif_job
       !time                TYPE t
       !not_later_than_date TYPE tbtcjob-laststrtdt OPTIONAL   " laststrtdt
       !not_later_than_time TYPE tbtcjob-laststrttm OPTIONAL   " laststrttm
-    RETURNING
-      VALUE(job)           TYPE REF TO zif_job
     RAISING
       zcx_job .
 
@@ -226,14 +235,13 @@ INTERFACE zif_job
   "! @parameter first_date | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter first_time | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter skip_if_not_started_in_minutes | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter months | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter weeks | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter days | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter hours | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter mins | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter calendar_id | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter months | <p class="shorttext synchronized" lang="en">Every X months</p>
+  "! @parameter weeks | <p class="shorttext synchronized" lang="en">Every X weeks</p>
+  "! @parameter days | <p class="shorttext synchronized" lang="en">Every X days</p>
+  "! @parameter hours | <p class="shorttext synchronized" lang="en">Every X hours</p>
+  "! @parameter MINS | <p class="shorttext synchronized" lang="en">Every X minutes</p>
+  "! @parameter calendar_id | <p class="shorttext synchronized" lang="en">Calendar ID for holiday</p>
   "! @parameter rule_if_date_falls_on_holiday | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
   "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS start_periodically
     IMPORTING
@@ -246,9 +254,7 @@ INTERFACE zif_job
       !hours                          TYPE tbtcjob-prdhours DEFAULT 0
       !mins                           TYPE tbtcjob-prdmins DEFAULT 0
       !calendar_id                    TYPE tbtcjob-calendarid OPTIONAL
-      !rule_if_date_falls_on_holiday  TYPE ty_calendar_rule OPTIONAL
-    RETURNING
-      VALUE(job)                      TYPE REF TO zif_job
+      !rule_if_date_falls_on_holiday  TYPE ty_calendar_rule DEFAULT calendar_rule-process_always
     RAISING
       zcx_job .
 
@@ -261,7 +267,6 @@ INTERFACE zif_job
   "! @parameter calendar_id | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter nth_workday | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter start_on_workday_not_before | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
   "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS start_monthly_nth_workday
     IMPORTING
@@ -272,49 +277,27 @@ INTERFACE zif_job
       !calendar_id                    TYPE tbtcjob-calendarid
       !nth_workday                    TYPE tbtcstrt-wdayno OPTIONAL
       !start_on_workday_not_before    TYPE tbtcstrt-notbefore DEFAULT sy-datum
-    RETURNING
-      VALUE(job)                      TYPE REF TO zif_job
     RAISING
       zcx_job .
-
-  "! <p class="shorttext synchronized" lang="en"></p>
-  "!
-  "! @parameter successor | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter checkstat | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
-  "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
-  METHODS set_successor_job
-    IMPORTING
-      !successor TYPE REF TO zif_job
-      !checkstat TYPE tbtcstrt-checkstat DEFAULT abap_false
-    RETURNING
-      VALUE(job) TYPE REF TO zif_job
-    RAISING
-      zcx_job.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "!
   "! @parameter predecessor | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter predjob_checkstat | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter job | <p class="shorttext synchronized" lang="en"></p>
   "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS start_after_job
     IMPORTING
       !predecessor       TYPE REF TO zif_job
       !predjob_checkstat TYPE tbtcstrt-checkstat DEFAULT abap_false
-    RETURNING
-      VALUE(job)         TYPE REF TO zif_job
     RAISING
       zcx_job .
 
   "! <p class="shorttext synchronized" lang="en">Start job after event is triggered (SM62)</p>
-  METHODS start_after_event
+  METHODS start_at_event
     IMPORTING
-      !id        TYPE tbtcjob-eventid
-      !param     TYPE tbtcjob-eventparm
-      !periodic  TYPE btch0000-char1 DEFAULT abap_false
-    RETURNING
-      VALUE(job) TYPE REF TO zif_job
+      !id       TYPE tbtcjob-eventid
+      !param    TYPE tbtcjob-eventparm
+      !periodic TYPE btch0000-char1 DEFAULT abap_false
     RAISING
       zcx_job .
 
@@ -323,8 +306,6 @@ INTERFACE zif_job
     IMPORTING
       !opmode          TYPE spfba-baname
       !opmode_periodic TYPE btch0000-char1
-    RETURNING
-      VALUE(job)       TYPE REF TO zif_job
     RAISING
       zcx_job .
 
