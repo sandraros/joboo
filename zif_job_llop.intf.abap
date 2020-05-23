@@ -6,16 +6,27 @@
 INTERFACE zif_job_llop
   PUBLIC .
 
+  CONSTANTS:
+    "! Date with spaces instead of zeroes, as defined in JOB_CLOSE,
+    "! which means "no date" transmitted via argument.
+    no_date            TYPE d VALUE '        ' ##NO_TEXT,
+    "! Time with spaces instead of zeroes, as defined in JOB_CLOSE,
+    "! which means "no time" transmitted via argument.
+    no_time            TYPE t VALUE '      ' ##NO_TEXT,
+    btc_process_always TYPE btch0000-char1  VALUE ' '.
+
   METHODS job_open
     IMPORTING
       jobname        TYPE btcjob
-      jobclass       TYPE btcjobclas
-      check_jobclass TYPE abap_bool
+      jobclass       TYPE btcjobclas OPTIONAL
+      check_jobclass TYPE abap_bool OPTIONAL
     EXPORTING
       jobcount       TYPE btcjobcnt
       info           TYPE i
     CHANGING
-      ret            TYPE i
+      ret            TYPE i OPTIONAL
+    RETURNING
+      VALUE(subrc)   TYPE sysubrc
     RAISING
       zcx_job.
 
@@ -37,7 +48,7 @@ INTERFACE zif_job_llop
   "! @parameter PRIPARAMS | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter report | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter variant | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter this_routine | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter THIS_PROCEDURE | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter step_number | <p class="shorttext synchronized" lang="en"></p>
   "! @raising zcx_job | <p class="shorttext synchronized" lang="en"></p>
   METHODS job_submit
@@ -45,9 +56,10 @@ INTERFACE zif_job_llop
       !jobname                     TYPE btcjob
       !jobcount                    TYPE btcjobcnt
       !arcparams                   TYPE arc_params OPTIONAL
-      !authcknam                   TYPE tbtcjob-authcknam
+      " Standard JOB_SUBMIT doesn't have a default AUTHCKNAM, I added it because I think it's a better choice
+      !authcknam                   TYPE tbtcjob-authcknam DEFAULT sy-uname
       !commandname                 TYPE sxpgcolist-name OPTIONAL
-      !operatingsystem             TYPE sy-opsys OPTIONAL
+      !operatingsystem             TYPE sy-opsys DEFAULT sy-opsys
       !extpgm_name                 TYPE tbtcstep-program OPTIONAL
       !extpgm_param                TYPE tbtcstep-parameter OPTIONAL
       !extpgm_set_trace_on         TYPE btch0000-char1 OPTIONAL
@@ -60,9 +72,11 @@ INTERFACE zif_job_llop
       !priparams                   TYPE pri_params OPTIONAL
       !report                      TYPE sy-repid OPTIONAL
       !variant                     TYPE raldb-variant OPTIONAL
-      !this_routine                TYPE symsgv
+      !this_procedure              TYPE symsgv OPTIONAL
     EXPORTING
       !step_number                 TYPE tbtcjob-stepcount
+    RETURNING
+      VALUE(subrc)                 TYPE sysubrc
     RAISING
       zcx_job .
 
@@ -76,7 +90,9 @@ INTERFACE zif_job_llop
       priparams       TYPE pri_params
       report          TYPE program
       variant         TYPE variant
-      this_routine    TYPE symsgv
+      this_procedure  TYPE symsgv
+    RETURNING
+      VALUE(subrc)    TYPE sysubrc
     RAISING
       zcx_job.
 
@@ -84,39 +100,46 @@ INTERFACE zif_job_llop
     IMPORTING
       jobname                     TYPE btcjob
       jobcount                    TYPE btcjobcnt
-      at_opmode                   TYPE spfba-baname
-      at_opmode_periodic          TYPE btch0000-char1
-      event_id                    TYPE tbtcjob-eventid
-      event_param                 TYPE tbtcjob-eventparm
-      event_periodic              TYPE btch0000-char1
-      sdlstrtdt                   TYPE d
-      sdlstrttm                   TYPE t
-      laststrtdt                  TYPE d
-      laststrttm                  TYPE t
-      prddays                     TYPE tbtcjob-prddays
-      prdhours                    TYPE tbtcjob-prdhours
-      prdmins                     TYPE tbtcjob-prdmins
-      prdmonths                   TYPE tbtcjob-prdmonths
-      prdweeks                    TYPE tbtcjob-prdweeks
-      calendar_id                 TYPE tbtcjob-calendarid
-      startdate_restriction       TYPE tbtcjob-prdbehav
-      start_on_workday_not_before TYPE d
-      start_on_workday_nr         TYPE tbtcstrt-wdayno
-      workday_count_direction     TYPE tbtcstrt-wdaycdir
-      predjob_checkstat           TYPE tbtcstrt-checkstat
-      pred_jobcount               TYPE tbtcjob-jobcount
-      pred_jobname                TYPE tbtcjob-jobname
-      strtimmed                   TYPE btch0000-char1
-      direct_start                TYPE btch0000-char1
-      recipient_obj               TYPE swotobjid
-      targetsystem                TYPE msxxlist-name
-      targetserver                TYPE btctgtsrvr-srvname
-      targetgroup                 TYPE bpsrvgrp
-      dont_release                TYPE btch0000-char1
-*      EXPORTING
-*        job_was_released            TYPE any
-*      CHANGING
-*        ret                         TYPE any
+      at_opmode                   TYPE spfba-baname DEFAULT space
+      at_opmode_periodic          TYPE btch0000-char1 DEFAULT space
+      calendar_id                 TYPE tbtcjob-calendarid DEFAULT space
+      event_id                    TYPE tbtcjob-eventid DEFAULT space
+      event_param                 TYPE tbtcjob-eventparm DEFAULT space
+      event_periodic              TYPE btch0000-char1 DEFAULT space
+      laststrtdt                  TYPE tbtcjob-laststrtdt DEFAULT no_date
+      laststrttm                  TYPE tbtcjob-laststrttm DEFAULT no_time
+      prddays                     TYPE tbtcjob-prddays DEFAULT 0
+      prdhours                    TYPE tbtcjob-prdhours DEFAULT 0
+      prdmins                     TYPE tbtcjob-prdmins DEFAULT 0
+      prdmonths                   TYPE tbtcjob-prdmonths DEFAULT 0
+      prdweeks                    TYPE tbtcjob-prdweeks DEFAULT 0
+      predjob_checkstat           TYPE tbtcstrt-checkstat DEFAULT space
+      pred_jobcount               TYPE tbtcjob-jobcount DEFAULT space
+      pred_jobname                TYPE tbtcjob-jobname DEFAULT space
+      sdlstrtdt                   TYPE tbtcjob-sdlstrtdt DEFAULT no_date
+      sdlstrttm                   TYPE tbtcjob-sdlstrttm DEFAULT no_time
+      startdate_restriction       TYPE tbtcjob-prdbehav DEFAULT btc_process_always
+      strtimmed                   TYPE btch0000-char1 DEFAULT space
+      targetsystem                TYPE any DEFAULT space ##ADT_PARAMETER_UNTYPED
+      start_on_workday_not_before TYPE tbtcstrt-notbefore DEFAULT sy-datum
+      start_on_workday_nr         TYPE tbtcstrt-wdayno DEFAULT 0
+      workday_count_direction     TYPE tbtcstrt-wdaycdir DEFAULT 0
+      recipient_obj               TYPE swotobjid OPTIONAL
+      targetserver                TYPE btctgtsrvr-srvname DEFAULT space
+      dont_release                TYPE btch0000-char1 DEFAULT space
+      targetgroup                 TYPE bpsrvgrp DEFAULT space
+      direct_start                TYPE btch0000-char1 OPTIONAL
+      inherit_recipient           TYPE btch0000-char1 OPTIONAL
+      inherit_target              TYPE btch0000-char1 OPTIONAL
+      register_child              TYPE btcchar1 DEFAULT abap_false
+      time_zone                   TYPE tznzone OPTIONAL
+      email_notification          TYPE btc_s_email OPTIONAL
+    EXPORTING
+      job_was_released            TYPE btch0000-char1
+    CHANGING
+      ret                         TYPE i OPTIONAL
+    RETURNING
+      VALUE(subrc)                TYPE sysubrc
     RAISING
       zcx_job.
 

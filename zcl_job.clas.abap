@@ -30,9 +30,6 @@ CLASS zcl_job DEFINITION
 
     INTERFACES zif_job .
 
-    CONSTANTS no_date TYPE d VALUE space ##NO_TEXT.
-    CONSTANTS no_time TYPE t VALUE space ##NO_TEXT.
-
     "! (used instead of constructor to cast)
     CLASS-METHODS new
       IMPORTING
@@ -87,7 +84,8 @@ CLASS zcl_job DEFINITION
         targetsystem                FOR zif_job~targetsystem ,
         workday_count_direction     FOR zif_job~workday_count_direction.
 
-protected section.
+  PROTECTED SECTION.
+
   PRIVATE SECTION.
 
     CLASS-METHODS inject_td
@@ -112,12 +110,20 @@ protected section.
 
     CLASS-METHODS check_ret_code
       IMPORTING
-        ret          TYPE i
-        this_routine TYPE csequence
+        ret            TYPE i
+        this_procedure TYPE csequence
       RAISING
         zcx_job .
 
     METHODS _close
+      RAISING
+        zcx_job .
+
+    METHODS check_job_submit_subrc
+      IMPORTING
+        subrc          TYPE sysubrc
+        report         TYPE syrepid OPTIONAL
+        this_procedure TYPE symsgv
       RAISING
         zcx_job .
 
@@ -147,11 +153,12 @@ ENDCLASS.
 
 
 
-CLASS ZCL_JOB IMPLEMENTATION.
+CLASS zcl_job IMPLEMENTATION.
 
 
   METHOD check_ret_code.
-    DATA dummy TYPE string.
+
+    DATA: dummy TYPE string.
 
     " based on subroutine XM_MAKE_BAPIRET2_EX in program SAPLSXBP
     CASE ret.
@@ -181,8 +188,9 @@ CLASS ZCL_JOB IMPLEMENTATION.
         MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_cant_return_recipient INTO dummy.
       WHEN OTHERS.
         IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-        MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine INTO dummy.
+        MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_procedure INTO dummy.
     ENDCASE.
+
   ENDMETHOD.
 
 
@@ -221,17 +229,23 @@ CLASS ZCL_JOB IMPLEMENTATION.
 
 
   METHOD new.
-    DATA: info TYPE i,
-          ret  TYPE i.
+    CONSTANTS : this_procedure TYPE symsgv VALUE 'JOB_OPEN' ##NO_TEXT.
+    DATA: info  TYPE i,
+          ret   TYPE i,
+          dummy TYPE string.
 
     DATA(new_job) = NEW zcl_job(
         name  = name
         class = class ).
 
-    new_job->sdlstrtdt = no_date. " date with spaces instead of zeroes, as defined in JOB_CLOSE
-    new_job->sdlstrttm = no_time. " time with spaces instead of zeroes, as defined in JOB_CLOSE
+    " Set default values in JOB_CLOSE
+    new_job->laststrtdt = zif_job_llop=>no_date.
+    new_job->laststrttm = zif_job_llop=>no_time.
+    new_job->sdlstrtdt = zif_job_llop=>no_date.
+    new_job->sdlstrttm = zif_job_llop=>no_time.
+    new_job->start_on_workday_not_before = sy-datum.
 
-    new_job->td->job_open(
+    DATA(subrc) = new_job->td->job_open(
       EXPORTING
         jobname          = new_job->name
         jobclass         = new_job->jclass
@@ -242,13 +256,33 @@ CLASS ZCL_JOB IMPLEMENTATION.
       CHANGING
         ret              = ret ).
 
+    " the following messages are based on BAPI_XBP_JOB_OPEN error handling.
+    IF subrc <> 0.
+      CASE subrc.
+        WHEN 1.
+          check_ret_code( ret = ret this_procedure = this_procedure ).
+        WHEN 2.
+          IF 0 = 1. MESSAGE e202(xm). ENDIF. " Invalid new job data
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_new_jobdata INTO dummy.
+        WHEN 3.
+          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_procedure INTO dummy.
+        WHEN 4.
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_procedure INTO dummy.
+      ENDCASE.
+
+      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+
+    ENDIF.
+
     job = new_job.
 
   ENDMETHOD.
 
 
   METHOD process_print_archive_params.
-    CONSTANTS : this_routine         TYPE symsgv VALUE 'ADD_STEP_ABAP' ##NO_TEXT,
+    CONSTANTS : this_procedure       TYPE symsgv VALUE 'PROCESS_PRINT_ARCHIVE_PARAMS' ##NO_TEXT,
                 c_char_unknown       TYPE c VALUE '_', "Unbekannt C
                 c_int_unknown        TYPE i VALUE -1,  "Unbekannt I
                 c_num1_unknown       TYPE n VALUE '0', "Unbekannt N(1)
@@ -445,16 +479,16 @@ CLASS ZCL_JOB IMPLEMENTATION.
       CASE sy-subrc.
         WHEN 1.
           IF 0 = 1. MESSAGE e051(xm). ENDIF. " No archive information found (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_archive_info WITH this_routine.
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_archive_info WITH this_procedure.
         WHEN 2.
           IF 0 = 1. MESSAGE e052(xm). ENDIF. " Invalid print information (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_print_params WITH this_routine.
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_print_params WITH this_procedure.
         WHEN 3.
           IF 0 = 1. MESSAGE e053(xm). ENDIF. " Invalid archive information (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_archive_params WITH this_routine.
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_archive_params WITH this_procedure.
         WHEN 4.
           IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
-          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_routine.
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_procedure.
       ENDCASE.
 
       zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
@@ -466,11 +500,11 @@ CLASS ZCL_JOB IMPLEMENTATION.
 
   METHOD zif_job~add_step_abap.
 
-    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_ABAP' ##NO_TEXT.
+    CONSTANTS : this_procedure TYPE symsgv VALUE 'ADD_STEP_ABAP' ##NO_TEXT.
     DATA: arcparams   TYPE arc_params,
           priparams   TYPE pri_params,
-          step_number TYPE i.
-
+          step_number TYPE i,
+          dummy       TYPE string.
 
 *    process_print_archive_params(
 *      EXPORTING
@@ -484,23 +518,28 @@ CLASS ZCL_JOB IMPLEMENTATION.
 
     IF selection_table IS INITIAL AND free_selections IS INITIAL.
 
-      td->job_submit(
+      DATA(subrc) = td->job_submit(
         EXPORTING
-          jobname     = me->name
-          jobcount    = me->count
-          arcparams   = arcparams
-          authcknam   = user
-          language    = language
-          priparams   = priparams
-          report      = report
-          variant     = variant
-          this_routine = this_routine
+          jobname        = me->name
+          jobcount       = me->count
+          arcparams      = arcparams
+          authcknam      = user
+          language       = language
+          priparams      = priparams
+          report         = report
+          variant        = variant
+          this_procedure = this_procedure
         IMPORTING
           step_number = step_number ).
 
+      check_job_submit_subrc(
+          subrc          = subrc
+          report         = report
+          this_procedure = this_procedure ).
+
     ELSE.
 
-      td->abap_submit(
+      subrc = td->abap_submit(
           jobname         = me->name
           jobcount        = me->count
           selection_table = selection_table
@@ -509,7 +548,11 @@ CLASS ZCL_JOB IMPLEMENTATION.
           priparams       = priparams
           report          = report
           variant         = variant
-          this_routine    = this_routine ).
+          this_procedure  = this_procedure ).
+      IF subrc <> 0.
+        MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
+        zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+      ENDIF.
 
     ENDIF.
 
@@ -519,10 +562,10 @@ CLASS ZCL_JOB IMPLEMENTATION.
 
 
   METHOD zif_job~add_step_external_command.
-    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_COMMAND' ##NO_TEXT.
+    CONSTANTS : this_procedure TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_COMMAND' ##NO_TEXT.
     DATA: step_number TYPE i.
 
-    td->job_submit(
+    DATA(subrc) = td->job_submit(
       EXPORTING
         jobname                     = me->name
         jobcount                    = me->count
@@ -535,9 +578,13 @@ CLASS ZCL_JOB IMPLEMENTATION.
         extpgm_stdout_in_joblog     = stdout_in_joblog
         extpgm_wait_for_termination = wait_for_termination
         authcknam                   = user
-        this_routine                = this_routine
+        this_procedure              = this_procedure
       IMPORTING
         step_number                 = step_number ).
+
+    check_job_submit_subrc(
+        subrc          = subrc
+        this_procedure = this_procedure ).
 
     job = me.
 
@@ -545,10 +592,10 @@ CLASS ZCL_JOB IMPLEMENTATION.
 
 
   METHOD zif_job~add_step_external_program.
-    CONSTANTS : this_routine TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_PROGRAM' ##NO_TEXT.
+    CONSTANTS: this_procedure TYPE symsgv VALUE 'ADD_STEP_EXTERNAL_PROGRAM' ##NO_TEXT.
     DATA: step_number TYPE i.
 
-    td->job_submit(
+    DATA(subrc) = td->job_submit(
       EXPORTING
         jobname                     = me->name
         jobcount                    = me->count
@@ -561,9 +608,13 @@ CLASS ZCL_JOB IMPLEMENTATION.
         extpgm_stdout_in_joblog     = stdout_in_joblog
         extpgm_wait_for_termination = wait_for_termination
         authcknam                   = user
-        this_routine                = this_routine
+        this_procedure              = this_procedure
       IMPORTING
         step_number                 = step_number ).
+
+    check_job_submit_subrc(
+        subrc          = subrc
+        this_procedure = this_procedure ).
 
     job = me.
 
@@ -770,7 +821,12 @@ CLASS ZCL_JOB IMPLEMENTATION.
 
   METHOD _close.
 
-    td->job_close(
+    DATA: this_procedure   TYPE symsgv VALUE 'JOB_CLOSE' ##NO_TEXT,
+          job_was_released TYPE btcchar1,
+          ret              TYPE i,
+          dummy            TYPE string.
+
+    DATA(subrc) = td->job_close(
           EXPORTING
             jobcount                    = me->count
             jobname                     = me->name
@@ -810,7 +866,103 @@ CLASS ZCL_JOB IMPLEMENTATION.
             targetserver                = targetserver
             targetgroup                 = targetgroup
             "------------------------------------------
-            dont_release                = dont_release ).
+            dont_release                = dont_release
+          IMPORTING
+            job_was_released            = job_was_released
+          CHANGING
+            ret                         = ret ).
+
+    IF subrc = 0.
+      IF dont_release = abap_false AND job_was_released = abap_false.
+        IF 0 = 1. MESSAGE e054(xm). ENDIF. " No authorization to release a job
+        MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_release_privileg.
+      ENDIF.
+    ELSE.
+      CASE subrc.
+        WHEN 1.
+          IF 0 = 1. MESSAGE e066(xm). ENDIF. " Immediate start not currently possible
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_immediate_start_poss INTO dummy.
+        WHEN 2.
+          IF 0 = 1. MESSAGE e068(xm). ENDIF. " Invalid date or invalid time specified
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_date_time INTO dummy.
+        WHEN 3.
+          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_procedure INTO dummy.
+        WHEN 4.
+          check_ret_code( ret = ret this_procedure = this_procedure ).
+        WHEN 5.
+          IF 0 = 1. MESSAGE e059(xm). ENDIF. " The specified job does not have any steps
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_no_jobsteps INTO dummy.
+        WHEN 6.
+          IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH this_procedure INTO dummy.
+        WHEN 7.
+          IF 0 = 1. MESSAGE e261(xm). ENDIF. " Could not lock job &2, job count &3
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_lock_failed WITH space me->name me->count.
+        WHEN 8.
+          IF 0 = 1. MESSAGE e069(xm). ENDIF. " Invalid server name specified (server name = &1)
+          IF targetsystem IS NOT INITIAL.
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_server_name WITH targetsystem.
+          ELSEIF targetserver IS NOT INITIAL.
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_server_name WITH targetserver.
+          ELSE.
+            MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_server_name WITH targetgroup.
+          ENDIF.
+        WHEN 9.
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_procedure.
+      ENDCASE.
+
+      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+    ENDIF.
 
   ENDMETHOD.
+
+
+  METHOD check_job_submit_subrc.
+
+    DATA: dummy TYPE string.
+
+    IF subrc <> 0.
+      CASE subrc.
+        WHEN 1.
+          " should not happen, it should have been intercepted during
+          " method process_print_archive_params.
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_procedure INTO dummy.
+        WHEN 2.
+          " TODO create a message for XPGFLAGS
+        WHEN 3.
+          IF 0 = 1. MESSAGE e202(xm). ENDIF. " Invalid new job data
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_invalid_new_jobdata INTO dummy.
+        WHEN 4.
+          IF 0 = 1. MESSAGE e046(xm). ENDIF. " Job name missing (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_jobname_missing WITH this_procedure INTO dummy.
+        WHEN 5.
+          IF 0 = 1. MESSAGE e049(xm). ENDIF. " Job does not exist (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_job_does_not_exist WITH this_procedure INTO dummy.
+        WHEN 6.
+          MESSAGE e027(bt) WITH report INTO dummy. " Failed to create job step & (see system log)
+        WHEN 7.
+          IF 0 = 1. MESSAGE e194(xm). ENDIF. " Job could not be locked
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_cant_enq_job INTO dummy.
+        WHEN 8.
+          IF 0 = 1. MESSAGE e050(xm). ENDIF. " Report or program not specified or name incomplete (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_progname_missing WITH this_procedure INTO dummy.
+        WHEN 9.
+          " can't happen
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_procedure.
+        WHEN 10.
+          IF 0 = 1. MESSAGE e034(xm). ENDIF. " Internal problem (function &1)
+          MESSAGE ID xmi_messages TYPE rs_c_error NUMBER msg_problem_detected WITH this_procedure.
+      ENDCASE.
+
+      zcx_job=>raise( bapiret2 = convert_sy_to_bapiret2( ) ).
+
+    ENDIF.
+
+  ENDMETHOD.
+
+
 ENDCLASS.

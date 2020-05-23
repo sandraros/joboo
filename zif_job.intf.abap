@@ -194,7 +194,7 @@ INTERFACE zif_job
   "! @parameter operating_system | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter parameters | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter server | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter rfcdest | <p class="shorttext synchronized" lang="en"></p>
+  "! @parameter RFCDEST | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter set_trace_on | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter stderr_in_joblog | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter stdout_in_joblog | <p class="shorttext synchronized" lang="en"></p>
